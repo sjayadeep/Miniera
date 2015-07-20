@@ -1,0 +1,34 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.artincodes.miniera.fragments.HomeFragment">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/text_time"
+        android:layout_centerHorizontal="true"
+        android:text="9:45"
+        android:textSize="80sp"
+        android:textColor="#fff"
+        android:includeFontPadding="false"
+        android:layout_marginTop="@dimen/activity_horizontal_margin"
+        />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/text_date"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@+id/text_time"
+        android:text="23 June, Tuesday"
+        android:textColor="#fff"
+        android:textSize="@dimen/abc_text_size_medium_material"
+        android:includeFontPadding="false"
+        />
+
+    <FrameLayout
+        android:id="@+id/mode_fragmentContainer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+</RelativeLayout>

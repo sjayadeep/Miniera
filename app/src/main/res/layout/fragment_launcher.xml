@@ -1,0 +1,51 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity$LauncherFragment">
+    <RelativeLayout android:layout_width="match_parent"
+        android:layout_height="@dimen/abc_action_bar_default_height_material"
+        android:id="@+id/action_bar_layout">
+        <TextView android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/activity_horizontal_margin"
+            android:text="Apps"
+            android:textColor="#fff"
+            android:layout_centerVertical="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:textSize="@dimen/abc_text_size_medium_material"/>
+
+    </RelativeLayout>
+
+    <GridView
+        android:id="@+id/drawer_grid"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:columnWidth="90dp"
+        android:numColumns="4"
+        android:layout_marginTop="10dp"
+        android:layout_marginRight="20dp"
+        android:verticalSpacing="10dp"
+        android:stretchMode="spacingWidthUniform"
+        android:gravity="center"
+        android:scrollbars="none"
+        android:overScrollMode="never"
+        android:layout_below="@+id/action_bar_layout"
+        />
+
+    <LinearLayout
+        android:id="@+id/side_index"
+        android:layout_width="20dp"
+        android:layout_height="match_parent"
+        android:layout_alignParentRight="true"
+        android:layout_marginTop="@dimen/abc_action_bar_default_height_material"
+        android:layout_alignParentEnd="true"
+        android:gravity="center_horizontal"
+        android:weightSum="1"
+        android:paddingTop="5dp"
+        android:orientation="vertical" >
+    </LinearLayout>
+
+
+</RelativeLayout>

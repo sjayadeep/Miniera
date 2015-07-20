@@ -1,0 +1,49 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.artincodes.miniera.fragments.WeatherFragment"
+    android:padding="16dp"
+    android:layout_alignParentTop="true"
+    android:id="@+id/weatheLayout">
+
+    <TextView
+        android:id="@+id/temperature"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="#fff"
+        android:includeFontPadding="false"
+        android:layout_marginLeft="16dp"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:textSize="78sp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="#fff"
+        android:textSize="@dimen/abc_text_size_large_material"
+        android:includeFontPadding="false"
+        android:id="@+id/temperature_desc"
+        android:layout_marginTop="-5dp"
+        android:layout_marginLeft="16dp"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:text="Sunny"
+        android:layout_below="@+id/temperature"/>
+
+    <TextView
+        android:id="@+id/location"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="#fff"
+        android:layout_marginLeft="16dp"
+        android:textSize="@dimen/abc_text_size_medium_material"
+        android:includeFontPadding="false"
+        android:text="Kottayam"
+        android:layout_below="@+id/temperature_desc"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"/>
+
+
+</RelativeLayout>
+

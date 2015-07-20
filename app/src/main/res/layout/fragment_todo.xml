@@ -1,0 +1,52 @@
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:fab="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="16dp"
+    tools:context="com.artincodes.miniera.fragments.TodoFragment">
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_alignParentTop="true"
+        android:id="@+id/line_view"
+        android:layout_marginBottom="@dimen/activity_vertical_margin"
+        android:background="#14ffffff" />
+
+    <TextView
+        android:id="@+id/text_todo_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="@dimen/abc_text_size_large_material"
+        android:layout_below="@+id/line_view"
+        android:textColor="#fff"
+        android:text="Tasks To-DO"
+        />
+
+
+
+    <ListView
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/todo_widget_list"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:layout_below="@+id/text_todo_title"
+        android:padding="0dp"/>
+
+    <com.melnykov.fab.FloatingActionButton
+        android:id="@+id/action_todo_add"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_margin="16dp"
+        fab:fab_colorNormal="#FFC107"
+        fab:fab_type="mini"
+        fab:fab_colorPressed="#FFA000"
+        fab:fab_colorRipple="#FFA000" />
+
+
+</RelativeLayout>
