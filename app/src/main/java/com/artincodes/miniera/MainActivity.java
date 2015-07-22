@@ -19,6 +19,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
@@ -53,7 +54,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class MainActivity extends FragmentActivity implements
+public class MainActivity extends AppCompatActivity implements
         GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,LocationListener {
 
 
@@ -86,12 +87,14 @@ public class MainActivity extends FragmentActivity implements
         setContentView(R.layout.activity_main);
 
 
+//        setS
         wallpaperImageView = (ImageView)findViewById(R.id.wallpaper_image);
         blurredImageView = (ImageView)findViewById(R.id.blurrered_image);
 
         new SetWallPaperTask().execute();
         buildGoogleApiClient();
         mGoogleApiClient.connect();
+//        setActionBar();
 
         blurredImageView.setAlpha(0f);
 

@@ -81,6 +81,7 @@ public class WeatherFragment extends Fragment {
             e.printStackTrace();
         }
 
+        cursor.close();
 
 
     }

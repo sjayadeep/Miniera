@@ -7,9 +7,9 @@ import android.graphics.drawable.Drawable;
  */
 public class AppPack {
 
-    String label;
-    String package_name;
-    Drawable icon;
+    public String label;
+    public String package_name;
+    public Drawable icon;
 
     public AppPack(String label,String package_name,Drawable icon){
         this.label = label;

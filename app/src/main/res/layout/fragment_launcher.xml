@@ -3,45 +3,87 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainActivity$LauncherFragment">
-    <RelativeLayout android:layout_width="match_parent"
-        android:layout_height="@dimen/abc_action_bar_default_height_material"
-        android:id="@+id/action_bar_layout">
-        <TextView android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="@dimen/activity_horizontal_margin"
-            android:text="Apps"
-            android:textColor="#fff"
-            android:layout_centerVertical="true"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"
-            android:textSize="@dimen/abc_text_size_medium_material"/>
+    <!--<RelativeLayout android:layout_width="match_parent"-->
+        <!--android:layout_height="@dimen/abc_action_bar_default_height_material"-->
+        <!--android:id="@+id/action_bar_layout">-->
 
-    </RelativeLayout>
+        <!-- -->
+        <!--<TextView android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_marginLeft="@dimen/activity_horizontal_margin"-->
+            <!--android:text="Apps"-->
+            <!--android:textColor="#fff"-->
+            <!--android:layout_centerVertical="true"-->
+            <!--android:layout_alignParentLeft="true"-->
+            <!--android:layout_alignParentStart="true"-->
+            <!--android:textSize="@dimen/abc_text_size_medium_material"/>-->
 
-    <GridView
-        android:id="@+id/drawer_grid"
+    <!--</RelativeLayout>-->
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/apps_toolbar"
+        android:layout_height="wrap_content"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:columnWidth="90dp"
-        android:numColumns="4"
-        android:layout_marginTop="10dp"
+        android:minHeight="?attr/actionBarSize"
+        android:background="@android:color/transparent"
+        >
+        <!--<LinearLayout-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:gravity="right|center_vertical">-->
+            <!--<Button-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:text="new button"/>-->
+            <!--<Button-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:text="2 button"/>-->
+
+        <!--</LinearLayout>-->
+        </android.support.v7.widget.Toolbar>
+
+
+    <!--<GridView-->
+        <!--android:id="@+id/drawer_grid"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:columnWidth="90dp"-->
+        <!--android:numColumns="4"-->
+        <!--android:layout_marginTop="10dp"-->
+        <!--android:layout_marginRight="20dp"-->
+        <!--android:verticalSpacing="10dp"-->
+        <!--android:stretchMode="spacingWidthUniform"-->
+        <!--android:gravity="center"-->
+        <!--android:scrollbars="none"-->
+        <!--android:overScrollMode="never"-->
+        <!--android:background="#2500ff00"-->
+        <!--android:layout_below="@+id/action_bar_layout"-->
+        <!--/>-->
+    <android.support.v4.widget.NestedScrollView
+        android:layout_below="@+id/apps_toolbar"
+        android:layout_width="match_parent"
         android:layout_marginRight="20dp"
-        android:verticalSpacing="10dp"
-        android:stretchMode="spacingWidthUniform"
-        android:gravity="center"
-        android:scrollbars="none"
-        android:overScrollMode="never"
-        android:layout_below="@+id/action_bar_layout"
-        />
+        android:layout_marginLeft="5dp"
+        android:id="@+id/scrollView"
+        android:layout_height="match_parent">
+
+       <LinearLayout
+           android:id="@+id/drawer_layout"
+           android:layout_width="match_parent"
+           android:orientation="vertical"
+           android:layout_height="wrap_content"/>
+
+    </android.support.v4.widget.NestedScrollView>
 
     <LinearLayout
         android:id="@+id/side_index"
         android:layout_width="20dp"
         android:layout_height="match_parent"
         android:layout_alignParentRight="true"
-        android:layout_marginTop="@dimen/abc_action_bar_default_height_material"
         android:layout_alignParentEnd="true"
         android:gravity="center_horizontal"
+        android:layout_below="@id/apps_toolbar"
         android:weightSum="1"
         android:paddingTop="5dp"
         android:orientation="vertical" >

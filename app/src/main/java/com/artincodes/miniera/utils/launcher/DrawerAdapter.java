@@ -14,25 +14,29 @@ import android.widget.TextView;
 import com.artincodes.miniera.MainActivity;
 import com.artincodes.miniera.R;
 import com.artincodes.miniera.fragments.LauncherFragment;
+import com.artincodes.miniera.utils.AppPack;
+
+import java.util.List;
 
 public class DrawerAdapter extends BaseAdapter {
 
     Context mContext;
 //    Pac[] pacsForAdapter;
     String[] labels;
-    String [] packageNames;
-    Drawable[] icons;
+//    String [] packageNames;
+//    Drawable[] icons;
+    List<AppPack> appPackList;
 //    String mSource;
 
     //AlphaAnimation animation1;
 
 
-    public DrawerAdapter (Context c, String[] labels,String[] packageNames,Drawable[] icons){
+    public DrawerAdapter (Context c, String[] labels,List<AppPack> appPackList){
 
         mContext = c;
         this.labels = labels;
-        this.packageNames = packageNames;
-        this.icons = icons;
+        this.appPackList = appPackList;
+//        this.icons = icons;
 //        mSource = source;
     }
     @Override
@@ -40,7 +44,7 @@ public class DrawerAdapter extends BaseAdapter {
         // TODO Auto-generated method stub
 
 
-        return packageNames.length;
+        return appPackList.size();
     }
 
     @Override
@@ -92,8 +96,8 @@ public class DrawerAdapter extends BaseAdapter {
 //        }catch (NullPointerException e){
 //            Log.i("PACKAGE",packageNames[pos]);
 //        }
-        viewHolder.icon.setImageDrawable(icons[pos]);
-        viewHolder.text.setText(labels[pos]);
+        viewHolder.icon.setImageDrawable(appPackList.get(pos).icon);
+        viewHolder.text.setText(appPackList.get(pos).label);
 
 
 //        } catch (PackageManager.NameNotFoundException e) {

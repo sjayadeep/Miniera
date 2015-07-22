@@ -34,9 +34,9 @@ public class ModesFragment extends Fragment {
                 .add(R.id.todo_container,new TodoFragment())
                 .commit();
 
-        getActivity().getSupportFragmentManager().beginTransaction()
-                .add(R.id.music_container,new MusicFragment())
-                .commit();
+//        getActivity().getSupportFragmentManager().beginTransaction()
+//                .add(R.id.music_container,new MusicFragment())
+//                .commit();
 
 
 
