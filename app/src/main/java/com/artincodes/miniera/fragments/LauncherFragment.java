@@ -244,9 +244,11 @@ public class LauncherFragment extends Fragment {
         indexText.setText(apps.get(0).label.substring(0,1).toUpperCase());
         indexText.setTextColor(Color.WHITE);
         indexText.setTextSize(22);
+//        if (drawerAdapterObject == null)
         drawerAdapterObject = new DrawerAdapter(getActivity(), labels, apps);
         drawerGrid.setScrollContainer(false);
         drawerGrid.setAdapter(drawerAdapterObject);
+//        drawerGrid.onMe
         int height = 0;
         if (apps.size() < 5) {
             height = ((apps.size() / 4) * 90) + 180;
@@ -255,6 +257,7 @@ public class LauncherFragment extends Fragment {
         }
         Log.i(TAG, "Height : " + height);
         drawerGrid.setNumColumns(4);
+//        drawerGrid.
         LinearLayout.LayoutParams lpTextView = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
 
         lpTextView.setMargins(50, 0, 0, 30);

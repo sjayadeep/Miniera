@@ -12,8 +12,10 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.artincodes.miniera.R;
+import com.artincodes.miniera.utils.ExpandedListView;
 import com.artincodes.miniera.utils.todo.ToDoListAdapter;
 import com.artincodes.miniera.utils.todo.TodoDBHelper;
 import com.melnykov.fab.FloatingActionButton;
@@ -26,12 +28,13 @@ import me.drakeet.materialdialog.MaterialDialog;
 public class TodoFragment extends Fragment {
 
     TodoDBHelper todoDBHelper;
-    ListView listViewToDo;
+    ExpandedListView listViewToDo;
     FloatingActionButton addToDoFab;
     MaterialDialog mMaterialDialog;
     String []tasks;
 
 
+    TextView noTaskTextView;
     public TodoFragment() {
         // Required empty public constructor
     }
@@ -42,8 +45,9 @@ public class TodoFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View rootView =  inflater.inflate(R.layout.fragment_todo, container, false);
-        listViewToDo = (ListView)rootView.findViewById(R.id.todo_widget_list);
+        listViewToDo = (ExpandedListView)rootView.findViewById(R.id.todo_widget_list);
         addToDoFab = (FloatingActionButton)rootView.findViewById(R.id.action_todo_add);
+        noTaskTextView = (TextView)rootView.findViewById(R.id.no_task);
 
         todoDBHelper = new TodoDBHelper(getActivity());
 
@@ -128,6 +132,11 @@ public class TodoFragment extends Fragment {
     private void updateTodoUI() {
 
         Cursor c = todoDBHelper.getTask();
+        if (c.getCount()>0){
+            noTaskTextView.setVisibility(View.GONE);
+        }else {
+            noTaskTextView.setVisibility(View.VISIBLE);
+        }
         c.moveToFirst();
         int i=0;
         tasks = new String[c.getCount()];

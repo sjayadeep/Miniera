@@ -13,6 +13,5 @@
             android:id="@+id/taskTextView"
             android:layout_gravity="center_vertical|left"
             android:textSize="@dimen/abc_text_size_medium_material"
-            android:textColor="#fff"
             android:gravity="center_vertical" />
     </LinearLayout>

@@ -6,38 +6,36 @@
 
 
     <android.support.v4.widget.NestedScrollView
-        android:layout_marginBottom="@dimen/abc_action_bar_default_height_material"
+        android:id="@+id/modesScrollView"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
 
-        <RelativeLayout
+        <LinearLayout
             android:layout_width="match_parent"
+            android:id="@+id/modes_layout"
+            android:orientation="vertical"
             android:layout_height="match_parent">
+
             <FrameLayout
                 android:id="@+id/weather_container"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_alignParentTop="true"
                 />
-
-
 
 
             <FrameLayout
                 android:id="@+id/music_container"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/weather_container"
                 />
 
             <FrameLayout
                 android:id="@+id/todo_container"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/music_container"
                 />
-        </RelativeLayout>
+        </LinearLayout>
 
     </android.support.v4.widget.NestedScrollView>
 
