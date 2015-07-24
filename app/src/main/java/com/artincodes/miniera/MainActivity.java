@@ -420,8 +420,8 @@ public class MainActivity extends AppCompatActivity implements
         List<Fragment> fList = new ArrayList<Fragment>();
 
 //        fList.add(new WidgetFragment().newInstance());
-//        fList.add(new WidgetFragment());
-        fList.add(new ModesFragment());
+        fList.add(new WidgetFragment());
+//        fList.add(new ModesFragment());
         fList.add(new HomeFragment());
         fList.add(new LauncherFragment());
 

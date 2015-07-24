@@ -344,9 +344,56 @@ public class WidgetFragment extends Fragment {
 //            Log.i("ASYNC",widgetId[0] +", " + widgetId[1]);
 //            widgetListView.setAdapter(new WidgetListAdapter(getActivity(),widgetId));
 
-            widgetListView.setAdapter(new WidgetRecyclerAdapter(getActivity(),widgetId));
+//            widgetListView.setAdapter(new WidgetRecyclerAdapter(getActivity(),widgetId));
+//            main
+
+
         }
 
+
+    }
+
+    public AppWidgetHostView setupWidget(int widgetId){
+
+        AppWidgetProviderInfo appWidgetInfo = WidgetFragment.mAppWidgetManager.getAppWidgetInfo(widgetId);
+        String label = appWidgetInfo.label;
+//        appWidgetInfo.configure;
+
+
+        AppWidgetHostView hostView;
+        Log.i("WIDGET LABEL", label);
+
+
+        hostView = WidgetFragment.mAppWidgetHost.createView(getActivity(), widgetId, appWidgetInfo);
+        hostView.setAppWidget(widgetId, appWidgetInfo);
+//        hostView.setMinimumHeight(300);
+        if (label.equals("Gmail") || label.equals("Hangouts")){
+            hostView.setLayoutParams(
+                    new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
+                            300));
+        }else {
+            hostView.setLayoutParams(
+                    new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
+                            LinearLayout.LayoutParams.WRAP_CONTENT));
+        }
+
+//        hostView.setOnTouchListener(new View.OnTouchListener() {
+//
+//            @Override
+//            public boolean onTouch(View v, MotionEvent event) {
+//                Log.v("WIDGET", "CHILD TOUCH");
+//
+//                // Disallow the touch request for parent scroll on touch of  child view
+//                v.getParent().requestDisallowInterceptTouchEvent(true);
+//                return false;
+//            }
+//        });
+
+
+
+
+        Log.i("WIDGET", "The widget size is: " + hostView.getWidth() + "*" + hostView.getHeight());
+        return hostView;
 
     }
 

@@ -11,15 +11,20 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.DragEvent;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.GridView;
 import android.widget.LinearLayout;
+import android.support.v7.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -27,6 +32,7 @@ import com.artincodes.miniera.MainActivity;
 import com.artincodes.miniera.R;
 import com.artincodes.miniera.utils.AppPack;
 import com.artincodes.miniera.utils.launcher.AppsDBHelper;
+import com.artincodes.miniera.utils.launcher.AppsRecyclerViewAdapter;
 import com.artincodes.miniera.utils.launcher.DrawerAdapter;
 import com.artincodes.miniera.utils.launcher.DrawerClickListener;
 import com.artincodes.miniera.utils.launcher.DrawerLongClickListener;
@@ -44,27 +50,33 @@ import java.util.Map;
 public class LauncherFragment extends Fragment {
 
 
-    //    public static GridView drawerGrid_old;
-    DrawerAdapter drawerAdapterObject;
     String[] labels;
     String[] packageNames;
     Drawable[] icons;
 
     List<AppPack> appList = new ArrayList<>();
 
-//    Map<String, List<String>> mapLetterApp = new HashMap<String, List<String>>();
-//
-//    // create list one and store values
-//    List<String> appSet = new ArrayList<String>();
+    List<List<AppPack>> fullAppsList = new ArrayList<>();
+
 
     public static Map<String, Integer> mapIndex;
 
     String TAG = "LAUNCHER FRAGMENT";
-    ViewGroup drawerLayout;
 
     NestedScrollView scrollView;
 
     View rootView;
+    AppsRecyclerViewAdapter appsRecyclerViewAdapter;
+    RecyclerView appsRecyclerView;
+    AppsDBHelper AppsDB;
+
+    GridView searchGridView;
+    SearchView appsSearchView;
+    TextView searchTextTitle;
+    LinearLayout indexLayout;
+
+    int count = 0;
+    boolean adapterSet = false;
 
 
     public LauncherFragment() {
@@ -79,18 +91,142 @@ public class LauncherFragment extends Fragment {
         rootView = inflater.inflate(R.layout.fragment_launcher, container, false);
 
         Toolbar toolbar = (Toolbar) rootView.findViewById(R.id.apps_toolbar);
-//        getActivity().setActionBar(toolbar);
-
-//        MainActivity.se
-        toolbar.setTitle("Apps");
+//        toolbar.inflateMenu(R.menu.menu_main);
+        searchGridView = (GridView)rootView.findViewById(R.id.search_grid);
+        searchGridView.setVisibility(View.GONE);
+        appsSearchView = (SearchView)rootView.findViewById(R.id.app_search_view);
+        appsRecyclerView = (RecyclerView) rootView.findViewById(R.id.apps_recycler_view);
+        appsRecyclerView.setHasFixedSize(true);
+        LinearLayoutManager llm = new LinearLayoutManager(getActivity());
+        llm.setOrientation(LinearLayoutManager.VERTICAL);
+        appsRecyclerView.setLayoutManager(llm);
+        AppsDB = new AppsDBHelper(getActivity());
         scrollView = (NestedScrollView) rootView.findViewById(R.id.scrollView);
+        searchTextTitle = (TextView)rootView.findViewById(R.id.search_text_title);
 
-                ((AppCompatActivity) getActivity()).setSupportActionBar(toolbar);
+        ((AppCompatActivity) getActivity()).setSupportActionBar(toolbar);
 
-        drawerLayout = (ViewGroup) rootView.findViewById(R.id.drawer_layout);
-//        drawerGrid_old = (GridView) rootView.findViewById(R.id.drawer_grid);
+            new SetDrawer().execute();
 
-        new SetDrawer().execute();
+        appsSearchView.setOnQueryTextFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (hasFocus) {
+                    appsRecyclerView.setVisibility(View.GONE);
+                    searchTextTitle.setVisibility(View.GONE);
+                    indexLayout.setVisibility(View.GONE);
+
+                    searchGridView.setVisibility(View.VISIBLE);
+                } else {
+
+                }
+            }
+        });
+
+//        appsSearchView.setc
+
+        appsSearchView.setOnCloseListener(new SearchView.OnCloseListener() {
+            @Override
+            public boolean onClose() {
+                clearSearchView();
+
+                return true;
+            }
+        });
+
+//        appsSearchView.setOnClickListener();
+
+        appsSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+
+
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String query) {
+
+//                Log.i(TAG,newText);
+//                if (!newText.equals("")){
+////
+//                    appsRecyclerView.setVisibility(View.VISIBLE);
+//                    searchTextTitle.setVisibility(View.VISIBLE);
+//
+//                }else {
+//                    appsRecyclerView.setVisibility(View.GONE);
+//                    searchTextTitle.setVisibility(View.GONE);
+//                }
+
+                Cursor seachCursor = AppsDB.searchApps(query);
+                seachCursor.moveToFirst();
+
+
+                String[] searchLabels = new String[seachCursor.getCount()];
+                String[] searchPackageNames = new String[seachCursor.getCount()];
+                Drawable[] searchIcons = new Drawable[seachCursor.getCount()];
+                List<AppPack> appSearchList = new ArrayList<>();
+
+                seachCursor.moveToFirst();
+                int i = 0;
+
+
+                while (!seachCursor.isAfterLast()) {
+
+
+                    searchLabels[i] = seachCursor.getString(2);
+                    searchPackageNames[i] = seachCursor.getString(1);
+                    try {
+                        if (searchLabels[i].equals("Phone")) {
+                            searchIcons[i] = MainActivity.packageManager.getApplicationIcon("com.android.phone");
+                        }else
+                            searchIcons[i] = MainActivity.packageManager.getApplicationIcon(searchPackageNames[i]);
+                    } catch (PackageManager.NameNotFoundException e) {
+                        e.printStackTrace();
+                    } catch (NullPointerException e) {
+                        Log.i("PACKAGE", searchPackageNames[i]);
+                    }
+
+//                    Log.i(TAG,"Searched apps"+searchLabels[i]);
+                    appSearchList.add(new AppPack(searchLabels[i], searchPackageNames[i], searchIcons[i]));
+
+                    i++;
+                    seachCursor.moveToNext();
+
+                }
+                seachCursor.close();
+
+
+//                Log.i(TAG, "Result Count" + seachCursor.getCount());
+
+                searchGridView.setAdapter(new DrawerAdapter(getActivity(), appSearchList));
+                searchGridView.setOnItemClickListener(new DrawerClickListener(getActivity(), appSearchList));
+                searchGridView.setOnItemLongClickListener(new DrawerLongClickListener(getActivity(),appSearchList));
+
+                return false;
+            }
+        });
+
+        appsSearchView.setOnKeyListener(new View.OnKeyListener() {
+            @Override
+            public boolean onKey(View v, int keyCode, KeyEvent event) {
+
+                if (event.getAction() == KeyEvent.ACTION_DOWN)
+                {
+                    //check if the right key was pressed
+                    if (keyCode == KeyEvent.KEYCODE_BACK)
+                    {
+//                        InputMethodManager imm = (InputMethodManager)getActivity().getSystemService(
+//                                Context.INPUT_METHOD_SERVICE);
+//                        imm.hideSoftInputFromWindow(edtTransactionDesc.getWindowToken(), 0);
+//                        AddTransactionView.this.requestFocus();
+                        appsSearchView.setIconified(true);
+                        return false;
+                    }
+                }
+                return true;
+            }
+        });
 
         return rootView;
     }
@@ -98,21 +234,22 @@ public class LauncherFragment extends Fragment {
 
     private void displayIndex() {
 
-        LinearLayout indexLayout = (LinearLayout) rootView.findViewById(R.id.side_index);
+        indexLayout = (LinearLayout) rootView.findViewById(R.id.side_index);
 
         TextView textView;
         List<String> indexList = new ArrayList<String>(mapIndex.keySet());
-        for (String index : indexList) {
+        for (final String index : indexList) {
             textView = (TextView) getActivity().getLayoutInflater().inflate(
                     R.layout.side_index_item, null);
-            textView.setShadowLayer(2, 0, 1, Color.BLACK);
+//            textView.setShadowLayer(2, 0, 1, Color.BLACK);
             textView.setText(index.toUpperCase());
             textView.setOnTouchListener(new View.OnTouchListener() {
                 @Override
                 public boolean onTouch(View v, MotionEvent event) {
                     TextView selectedIndex = (TextView) v;
-//                    drawerLayout.setSelected(6);
-//                    drawerGrid_old.setSelection(mapIndex.get(selectedIndex.getText().toString().toLowerCase()));
+                    Log.i(TAG, "Scrolling to : " + mapIndex.get(selectedIndex.getText().toString().toLowerCase()));
+                    appsRecyclerView.scrollToPosition(mapIndex.get(selectedIndex.getText().toString().toLowerCase()));
+
                     return false;
                 }
             });
@@ -123,13 +260,6 @@ public class LauncherFragment extends Fragment {
 
     }
 
-//    public void setMapIndex() {
-//
-//
-//
-//
-//        displayIndex();
-//    }
 
     private class SetDrawer extends AsyncTask<Void, Void, Void> {
 
@@ -139,10 +269,13 @@ public class LauncherFragment extends Fragment {
 
             Log.i("DRAWER", "DO IN BG IS CALLED");
 
-            if (drawerAdapterObject == null) {
+            if (true) {
+                adapterSet=false;
+                fullAppsList.clear();
                 Log.i("DRAWER", "INSIDE CONDITION");
-                AppsDBHelper AppsDB = new AppsDBHelper(getActivity());
+
                 Cursor c = AppsDB.getApps();
+
                 labels = new String[c.getCount()];
                 packageNames = new String[c.getCount()];
                 icons = new Drawable[c.getCount()];
@@ -157,7 +290,10 @@ public class LauncherFragment extends Fragment {
                     labels[i] = c.getString(2);
                     packageNames[i] = c.getString(1);
                     try {
-                        icons[i] = MainActivity.packageManager.getApplicationIcon(packageNames[i]);
+                        if (labels[i].equals("Phone")) {
+                            icons[i] = MainActivity.packageManager.getApplicationIcon("com.android.phone");
+                        }else
+                            icons[i] = MainActivity.packageManager.getApplicationIcon(packageNames[i]);
                     } catch (PackageManager.NameNotFoundException e) {
                         e.printStackTrace();
                     } catch (NullPointerException e) {
@@ -172,46 +308,27 @@ public class LauncherFragment extends Fragment {
                 c.close();
             }
 
-
-////            String letter = "a";
-//            for (int i = 0; i < labels.length; i++) {
-//
-//            }
-
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void result) {
-
-
             String index = null;
 
             mapIndex = new LinkedHashMap<String, Integer>();
             mapIndex.clear();
+            count=0;
+
 
             for (int i = 0; i < labels.length; i++) {
                 index = labels[i].substring(0, 1);
+
 
                 if (mapIndex.get(index.toLowerCase()) == null) {
                     if (i != 0) {
 
                         addGridViewApps(appList);
                         appList.clear();
-
-//                        break;
                     }
-                    mapIndex.put(index.toLowerCase(), i);
+                    mapIndex.put(index.toLowerCase(), count++);
+//                    count=count+1;
 
-//                if(i!=0){
-//                    letter=index;
-//
-//                }
-                    Log.i(TAG, "Inside condition" + labels[i]);
                 } else {
-
-                    Log.i(TAG, labels[i]);
-
                 }
 
                 appList.add(new AppPack(labels[i], packageNames[i], icons[i]));
@@ -219,16 +336,23 @@ public class LauncherFragment extends Fragment {
 
             addGridViewApps(appList);
             appList.clear();
+            return null;
+        }
 
-            Log.i("DRAWER", "POST EXECUTE IS CALLED");
-
-//            drawerGrid_old.setAdapter(drawerAdapterObject);
-//            drawerGrid_old.setOnItemClickListener(new DrawerClickListener(getActivity(),
-//                    packageNames, labels, MainActivity.packageManager));
-//            drawerGrid_old.setOnItemLongClickListener(new DrawerLongClickListener(getActivity(),
-//                    packageNames, labels, icons, MainActivity.packageManager));
+        @Override
+        protected void onPostExecute(Void result) {
 
             displayIndex();
+            Log.i(TAG, "Calling Adapter");
+            appsRecyclerViewAdapter=null;
+//            if (adapterSet == false) {
+                appsRecyclerViewAdapter = new AppsRecyclerViewAdapter(getActivity(), fullAppsList);
+                adapterSet=true;
+//            }
+
+            appsRecyclerView.setAdapter(appsRecyclerViewAdapter);
+
+
 
         }
 
@@ -239,41 +363,32 @@ public class LauncherFragment extends Fragment {
     public void addGridViewApps(List<AppPack> appList) {
 
         List<AppPack> apps = new ArrayList<>(appList);
-        StaticGridView drawerGrid = new StaticGridView(getActivity());
-        TextView indexText = new TextView(getActivity());
-        indexText.setText(apps.get(0).label.substring(0,1).toUpperCase());
-        indexText.setTextColor(Color.WHITE);
-        indexText.setTextSize(22);
-//        if (drawerAdapterObject == null)
-        drawerAdapterObject = new DrawerAdapter(getActivity(), labels, apps);
-        drawerGrid.setScrollContainer(false);
-        drawerGrid.setAdapter(drawerAdapterObject);
-//        drawerGrid.onMe
-        int height = 0;
-        if (apps.size() < 5) {
-            height = ((apps.size() / 4) * 90) + 180;
-        } else {
-            height = ((apps.size() / 4) * 90) + 200;
-        }
-        Log.i(TAG, "Height : " + height);
-        drawerGrid.setNumColumns(4);
-//        drawerGrid.
-        LinearLayout.LayoutParams lpTextView = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        fullAppsList.add(apps);
 
-        lpTextView.setMargins(50, 0, 0, 30);
-        indexText.setLayoutParams(lpTextView);
-
-        drawerLayout.addView(indexText);
-
-//        lp.getMarginEnd().
-        LinearLayout.LayoutParams lpGrid = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-
-        lpGrid.setMargins(0, 0, 0, 30);
-
-        drawerGrid.setLayoutParams(lpGrid);
-
-        drawerLayout.addView(drawerGrid);
     }
+
+    @Override
+    public void onPause(){
+        clearSearchView();
+
+        super.onPause();
+    }
+
+
+    public void clearSearchView(){
+        appsRecyclerView.setVisibility(View.VISIBLE);
+        searchTextTitle.setVisibility(View.VISIBLE);
+        try {
+            indexLayout.setVisibility(View.VISIBLE);
+        }catch (NullPointerException e){
+
+        }
+
+        searchGridView.setVisibility(View.GONE);
+        appsSearchView.onActionViewCollapsed();
+
+    }
+
 
 }
 

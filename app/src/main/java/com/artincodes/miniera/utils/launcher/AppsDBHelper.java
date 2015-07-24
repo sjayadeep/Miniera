@@ -106,4 +106,16 @@ public class AppsDBHelper extends SQLiteOpenHelper{
         }
 
     }
+
+    public Cursor searchApps(String query){
+
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String[] args = new String[1];
+        args[0] = "%"+query+"%";
+
+        Cursor cursor = db.rawQuery("SELECT * FROM "+TABLE_NAME+" WHERE "+COLUMN_NAME+" like ?", args);
+        return cursor;
+
+    }
 }

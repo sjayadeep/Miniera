@@ -14,19 +14,21 @@ import android.widget.Toast;
 
 import com.artincodes.miniera.MainActivity;
 import com.artincodes.miniera.fragments.LauncherFragment;
+import com.artincodes.miniera.utils.AppPack;
+
+import java.util.List;
 
 public class DrawerClickListener implements OnItemClickListener {
 
     Context mContext;
-    String[] packageNames;
-    String[] labels;
-    PackageManager pmForListener;
+//    String[] packageNames;
+//    String[] labels;
+    PackageManager pmForListener = MainActivity.packageManager;
+    List<AppPack> appPackList;
 
-    public DrawerClickListener(Context c, String[] packageNames, String[] labels,PackageManager pm) {
+    public DrawerClickListener(Context c, List<AppPack> appPackList) {
         mContext = c;
-        this.packageNames = packageNames;
-        this.labels = labels;
-        pmForListener = pm;
+        this.appPackList = appPackList;
     }
 
     @Override
@@ -36,11 +38,13 @@ public class DrawerClickListener implements OnItemClickListener {
 
             Intent launchIntent = null;
 
-            if (labels[pos].equals("Phone")){
+        String label = appPackList.get(pos).label;
+
+            if (label.equals("Phone")){
                 launchIntent = new Intent(Intent.ACTION_DIAL);
                 launchIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             }else {
-                launchIntent = pmForListener.getLaunchIntentForPackage(packageNames[pos]);
+                launchIntent = pmForListener.getLaunchIntentForPackage(appPackList.get(pos).package_name);
             }
             mContext.startActivity(launchIntent);
 

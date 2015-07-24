@@ -12,27 +12,36 @@ import android.database.Cursor;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Vibrator;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.*;
 import android.widget.AdapterView.OnItemLongClickListener;
+
 import com.artincodes.miniera.MainActivity;
 import com.artincodes.miniera.R;
 import com.artincodes.miniera.fragments.LauncherFragment;
 import com.artincodes.miniera.fragments.MiniAppdrawerFragment;
+import com.artincodes.miniera.utils.AppPack;
 import com.artincodes.miniera.utils.ListAdapterCommon;
+
+import java.util.List;
 
 import me.drakeet.materialdialog.MaterialDialog;
 
 public class DrawerLongClickListener implements OnItemLongClickListener {
 
     Context mContext;
-//    Pac[] pacsForAdapter;
-    String[] packageNames;
-    String[] labels;
-    Drawable[] icons;
+    //    Pac[] pacsForAdapter;
+//    String[] packageNames;
+//    String[] labels;
+//    Drawable[] icons;
 
-    PackageManager pmForListener;
+    String TAG = "DrawerLongClickListener";
+
+    List<AppPack> appPackList;
+
+    PackageManager pmForListener = MainActivity.packageManager;
     MaterialDialog appOptionsDialog = null;
     View convertView;
     ImageView appIcon;
@@ -58,24 +67,15 @@ public class DrawerLongClickListener implements OnItemLongClickListener {
     ListAdapterCommon listAdapterCommon;
 
 
-
     int index;
     String packageName;
 
 
-
-
-    public DrawerLongClickListener(Context c,
-                                   String[] packageNames,
-                                   String[] labels,
-                                   Drawable[] icons,
-                                   PackageManager pm) {
+    public DrawerLongClickListener(Context c,List<AppPack> appPackList
+                                   ) {
         mContext = c;
 //        pacsForAdapter = pacs;
-        this.packageNames = packageNames;
-        this.labels = labels;
-        this.icons = icons;
-        pmForListener = pm;
+        this.appPackList = appPackList;
     }
 
 
@@ -92,6 +92,7 @@ public class DrawerLongClickListener implements OnItemLongClickListener {
 
         mVibrator = (Vibrator) mContext.getSystemService(Context.VIBRATOR_SERVICE);
         mVibrator.vibrate(50);
+        Log.i(TAG,"Long click listener");
 //        Toast.makeText(mContext,pacsForAdapter[position].label+"\n"+
 //                MiniAppdrawerFragment.pacsForMiniAdapter.length,Toast.LENGTH_SHORT).show();
 
@@ -100,7 +101,7 @@ public class DrawerLongClickListener implements OnItemLongClickListener {
         ImageView imageView = new ImageView(mContext);
         Cursor c = MainActivity.miniDrawerAppsDBHelper.getMiniDrawerApps();
         index = c.getCount();
-        packageName=packageNames[position];
+        packageName = appPackList.get(position).package_name;
 //        Toast.makeText(mContext,packageName+"",Toast.LENGTH_SHORT).show();
 
 //        imageView.setImageDrawable(pacsForAdapter[position].icon);
@@ -111,10 +112,10 @@ public class DrawerLongClickListener implements OnItemLongClickListener {
         appName = (TextView) convertView.findViewById(R.id.text_app_name);
 //        moreButton = (ImageView) convertView.findViewById(R.id.more_icon);
 
-        appIcon.setImageDrawable(icons[position]);
-        appName.setText(labels[position]);
+        appIcon.setImageDrawable(appPackList.get(position).icon);
+        appName.setText(appPackList.get(position).label);
 
-        listAdapterCommon = new ListAdapterCommon(mContext,optionTitles,optionIcons,"#000000");
+        listAdapterCommon = new ListAdapterCommon(mContext, optionTitles, optionIcons, "#000000");
         listViewOptions = (ListView) convertView.findViewById(R.id.more_options_list);
         listViewOptions.setAdapter(listAdapterCommon);
 
@@ -138,7 +139,7 @@ public class DrawerLongClickListener implements OnItemLongClickListener {
 
                         MainActivity.miniDrawerAppsDBHelper.insertApp(index,
                                 packageName,
-                                labels[position]);
+                                appPackList.get(position).label);
                         appOptionsDialog.dismiss();
 
 
@@ -151,7 +152,7 @@ public class DrawerLongClickListener implements OnItemLongClickListener {
                 switch (pos) {
                     case 0:
                         //Toast.makeText(mContext,"Uninstall "+pacsForAdapter[position].label,Toast.LENGTH_SHORT).show();
-                        Uri packageUri = Uri.parse("package:" + packageNames[position]);
+                        Uri packageUri = Uri.parse("package:" + appPackList.get(position).package_name);
                         Intent uninstallIntent =
                                 new Intent(Intent.ACTION_UNINSTALL_PACKAGE, packageUri);
                         mContext.startActivity(uninstallIntent);
@@ -161,7 +162,7 @@ public class DrawerLongClickListener implements OnItemLongClickListener {
                     case 1:
                         //Toast.makeText(mContext,"Info "+pacsForAdapter[position].label,Toast.LENGTH_SHORT).show();
                         Intent intent = new Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-                        intent.setData(Uri.parse("package:" + packageNames[position]));
+                        intent.setData(Uri.parse("package:" + appPackList.get(position).package_name));
                         mContext.startActivity(intent);
                         appOptionsDialog.dismiss();
 
@@ -169,7 +170,7 @@ public class DrawerLongClickListener implements OnItemLongClickListener {
                     case 2:
                         //Toast.makeText(mContext,"Playstore "+pacsForAdapter[position].label,Toast.LENGTH_SHORT).show();
                         mContext.startActivity(new Intent(Intent.ACTION_VIEW,
-                                Uri.parse("market://details?id=" + packageNames[position])));
+                                Uri.parse("market://details?id=" + appPackList.get(position).package_name)));
 
                         appOptionsDialog.dismiss();
                         break;

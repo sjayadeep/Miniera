@@ -30,7 +30,7 @@
         android:id="@+id/no_task"
         android:layout_below="@id/text_todo_title"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="5dp"
+        android:layout_marginTop="20dp"
         android:text="No pending tasks"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />

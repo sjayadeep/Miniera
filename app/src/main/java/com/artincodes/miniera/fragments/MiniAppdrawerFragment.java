@@ -29,13 +29,16 @@ import android.widget.Toast;
 
 import com.artincodes.miniera.MainActivity;
 import com.artincodes.miniera.R;
+import com.artincodes.miniera.utils.AppPack;
 import com.artincodes.miniera.utils.DraggableGrid.DynamicGridAdapter;
 import com.artincodes.miniera.utils.DraggableGrid.DynamicGridView;
 import com.artincodes.miniera.utils.launcher.DrawerClickListener;
 import com.artincodes.miniera.utils.reveal.RevealLayout;
 import com.artincodes.miniera.utils.launcher.DrawerAdapter;
 
+import java.util.ArrayList;
 import java.util.IdentityHashMap;
+import java.util.List;
 
 
 /**
@@ -55,6 +58,8 @@ public class MiniAppdrawerFragment extends Fragment {
     Drawable[] icons;
     boolean appsDeletable = false;
     ImageView deleteAppButton;
+
+    List<AppPack> appList = new ArrayList<>();
 
     DrawerAdapter miniDrawerAdapter;
     //    public static GridView minidrawerGrid;
@@ -111,7 +116,10 @@ public class MiniAppdrawerFragment extends Fragment {
             packageNames[i] = c.getString(1);
 
             try {
-                icons[i] = MainActivity.packageManager.getApplicationIcon(c.getString(1));
+                if (labels[i].equals("Phone")) {
+                    icons[i] = MainActivity.packageManager.getApplicationIcon("com.android.phone");
+                }else
+                    icons[i] = MainActivity.packageManager.getApplicationIcon(packageNames[i]);
             } catch (PackageManager.NameNotFoundException e) {
                 e.printStackTrace();
             }catch (NullPointerException e){
@@ -119,11 +127,12 @@ public class MiniAppdrawerFragment extends Fragment {
             }
             adapter.add(packageNames+"");
 //            adapter.add(pacsForMiniAdapter[i].icon);
-
+            appList.add(new AppPack(labels[i], packageNames[i], icons[i]));
             i++;
             c.moveToNext();
 
         }
+
 //        minidrawerGrid.setAdapter(new DrawerAdapter(getActivity(),pacsForMiniAdapter,"mini"));
 
 //        DrawerAdapter drawerAdapter = new DrawerAdapter(getActivity(),pacsForMiniAdapter,"mini");
@@ -239,8 +248,7 @@ public class MiniAppdrawerFragment extends Fragment {
     }
 
     private void setAppOpenListener(){
-        minidrawerGrid.setOnItemClickListener(new DrawerClickListener(getActivity(),
-                packageNames,labels, MainActivity.packageManager));
+        minidrawerGrid.setOnItemClickListener(new DrawerClickListener(getActivity(),appList));
     }
 
 }

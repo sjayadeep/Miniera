@@ -31,10 +31,10 @@ public class DrawerAdapter extends BaseAdapter {
     //AlphaAnimation animation1;
 
 
-    public DrawerAdapter (Context c, String[] labels,List<AppPack> appPackList){
+    public DrawerAdapter (Context c,List<AppPack> appPackList){
 
         mContext = c;
-        this.labels = labels;
+//        this.labels = labels;
         this.appPackList = appPackList;
 //        this.icons = icons;
 //        mSource = source;
