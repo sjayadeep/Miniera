@@ -1,8 +1,5 @@
 package com.artincodes.miniera.fragments;
 
-import android.media.MediaMetadataRetriever;
-import android.net.Uri;
-import android.os.Environment;
 import android.support.v4.app.Fragment;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -11,9 +8,6 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -29,7 +23,7 @@ import com.woodblockwithoutco.remotemetadataprovider.media.listeners.OnMetadataC
 import com.woodblockwithoutco.remotemetadataprovider.media.listeners.OnPlaybackStateChangeListener;
 
 
-public  class MusicFragment extends Fragment {
+public  class MusicFragmentv14 extends Fragment {
     /**
      * The fragment argument representing the section number for this
      * fragment.
@@ -56,15 +50,15 @@ public  class MusicFragment extends Fragment {
      * Returns a new instance of this fragment for the given section
      * number.
      */
-    public static MusicFragment newInstance(int sectionNumber) {
-        MusicFragment fragment = new MusicFragment();
+    public static MusicFragmentv14 newInstance(int sectionNumber) {
+        MusicFragmentv14 fragment = new MusicFragmentv14();
         Bundle args = new Bundle();
         args.putInt(ARG_SECTION_NUMBER, sectionNumber);
         fragment.setArguments(args);
         return fragment;
     }
 
-    public MusicFragment() {
+    public MusicFragmentv14() {
     }
 
     @Override

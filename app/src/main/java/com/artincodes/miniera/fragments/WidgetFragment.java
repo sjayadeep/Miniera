@@ -12,8 +12,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.NestedScrollView;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -21,7 +19,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
-import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -31,8 +28,6 @@ import android.widget.Toast;
 import com.artincodes.miniera.MainActivity;
 import com.artincodes.miniera.R;
 import com.artincodes.miniera.utils.widgetutils.WidgetDBHelper;
-import com.artincodes.miniera.utils.widgetutils.WidgetListAdapter;
-import com.artincodes.miniera.utils.widgetutils.WidgetRecyclerAdapter;
 import com.melnykov.fab.FloatingActionButton;
 
 import java.util.ArrayList;
@@ -45,24 +40,19 @@ import java.util.Set;
 public class WidgetFragment extends Fragment {
 
 
-
-
     public WidgetFragment() {
     }
 
-    public static AppWidgetManager mAppWidgetManager;
-    public static AppWidgetHost mAppWidgetHost;
+    AppWidgetManager mAppWidgetManager;
+    AppWidgetHost mAppWidgetHost;
     private static final int REQUEST_CREATE_APPWIDGET = 5;
     private static final int REQUEST_PICK_APPWIDGET = 9;
-    String[] widgetId;
-
-//    private NestedScrollView nestedScrollView;
+    private NestedScrollView nestedScrollView;
     private WidgetDBHelper widgetDBHelper;
     AppWidgetHostView hostView;
-    RecyclerView widgetListView;
 
 
-//    ViewGroup mainlayout;
+    ViewGroup mainlayout;
     int count = 0;
 
     public static final WidgetFragment newInstance()
@@ -82,41 +72,15 @@ public class WidgetFragment extends Fragment {
     }
 
 
-
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View rootView =  inflater.inflate(R.layout.fragment_widget, container, false);
-
-        final FloatingActionButton addWidgetButton = (FloatingActionButton) rootView.findViewById(R.id.add_widget_button);
-        final Button clearDBButton = (Button) rootView.findViewById(R.id.clear_db);
+        View rootView = inflater.inflate(R.layout.fragment_widget, container, false);
+        FloatingActionButton addWidgetButton = (FloatingActionButton) rootView.findViewById(R.id.add_widget_button);
+        Button clearDBButton = (Button) rootView.findViewById(R.id.clear_db);
 //        nestedScrollView = (NestedScrollView)rootView.findViewById(R.id.nestedScrollView);
-//        mainlayout = (ViewGroup) rootView.findViewById(R.id.widget_layout);
-        widgetListView = (RecyclerView)rootView.findViewById(R.id.widgetList);
-
-        widgetListView.setHasFixedSize(false);
-        LinearLayoutManager llm = new LinearLayoutManager(getActivity());
-        llm.setOrientation(LinearLayoutManager.VERTICAL);
-        widgetListView.setLayoutManager(llm);
-
-        widgetListView.setAdapter(new WidgetRecyclerAdapter(getActivity(),widgetId));
-
-
-//        new Thread(new Runnable() {
-//            public void run() {
-//        widgetListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-//            @Override
-//            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-//
-//                widgetDBHelper.deleteWidget(position);
-////                widgetListView.removeView(view);
-//                new LoadWidgets().execute();
-//
-//                return false;
-//            }
-//        });
+        mainlayout = (ViewGroup) rootView.findViewById(R.id.widget_layout);
         widgetDBHelper = new WidgetDBHelper(getActivity());
 
 //        makeMyScrollSmart();
@@ -132,8 +96,6 @@ public class WidgetFragment extends Fragment {
                 selectWidget();
             }
         });
-        addWidgetButton.attachToRecyclerView(widgetListView);
-
 
 
         clearDBButton.setOnClickListener(new View.OnClickListener() {
@@ -142,11 +104,12 @@ public class WidgetFragment extends Fragment {
                 widgetDBHelper.clearDb();
             }
         });
-
+//        new Thread(new Runnable() {
+//            public void run() {
 //                Toast.makeText(getActivity(),"DB Cleared",Toast.LENGTH_SHORT).show();
 //            }
 //        }).start();
-//
+
         new LoadWidgets().execute();
 
         return rootView;
@@ -164,7 +127,7 @@ public class WidgetFragment extends Fragment {
      * This avoids a bug in the com.android.settings.AppWidgetPickActivity,
      * which is used to select widgets. This just adds empty extras to the
      * intent, avoiding the bug.
-     *
+     * <p/>
      * See more: http://code.google.com/p/android/issues/detail?id=4272
      */
 
@@ -185,11 +148,11 @@ public class WidgetFragment extends Fragment {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == getActivity().RESULT_OK) {
             if (requestCode == REQUEST_PICK_APPWIDGET) {
-//                Log.i("Widget",data.getDataString()+"");
+                Log.i("Widget", data.getDataString() + "");
                 configureWidget(data);
             } else if (requestCode == REQUEST_CREATE_APPWIDGET) {
                 createWidget(data);
-//                Log.i("Widget  CREATE",data.getDataString()+"");
+                Log.i("Widget  CREATE", data.getDataString() + "");
 
             }
         } else if (resultCode == getActivity().RESULT_CANCELED && data != null) {
@@ -197,7 +160,7 @@ public class WidgetFragment extends Fragment {
             if (appWidgetId != -1) {
                 mAppWidgetHost.deleteAppWidgetId(appWidgetId);
             }
-//            Log.i("Widget  cancelled",data.getDataString()+"");
+            Log.i("Widget  cancelled", data.getDataString() + "");
         }
     }
 
@@ -226,13 +189,50 @@ public class WidgetFragment extends Fragment {
 
         Bundle extras = data.getExtras();
         int appWidgetId = extras.getInt(AppWidgetManager.EXTRA_APPWIDGET_ID, -1);
-//        setupWidget(appWidgetId);
-        widgetDBHelper.insertWidget(count,appWidgetId);
-        new LoadWidgets().execute();
+        setupWidget(appWidgetId);
+        widgetDBHelper.insertWidget(count, appWidgetId);
 
     }
 
+    public void setupWidget(int widgetId) {
 
+        AppWidgetProviderInfo appWidgetInfo = mAppWidgetManager.getAppWidgetInfo(widgetId);
+        String label = appWidgetInfo.label;
+//        appWidgetInfo.configure;
+
+        Log.i("WIDGET LABEL", label);
+
+
+        hostView = mAppWidgetHost.createView(getActivity(), widgetId, appWidgetInfo);
+        hostView.setAppWidget(widgetId, appWidgetInfo);
+//        hostView.setMinimumHeight(300);
+        if (label.equals("Gmail")) {
+            hostView.setLayoutParams(
+                    new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
+                            300));
+        } else {
+            hostView.setLayoutParams(
+                    new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
+                            LinearLayout.LayoutParams.WRAP_CONTENT));
+        }
+
+//        hostView.setOnTouchListener(new View.OnTouchListener() {
+//
+//            @Override
+//            public boolean onTouch(View v, MotionEvent event) {
+//                Log.v("WIDGET", "CHILD TOUCH");
+//
+//                // Disallow the touch request for parent scroll on touch of  child view
+//                v.getParent().requestDisallowInterceptTouchEvent(true);
+//                return false;
+//            }
+//        });
+
+
+        Log.i("WIDGET", "The widget size is: " + hostView.getWidth() + "*" + hostView.getHeight());
+        mainlayout.addView(hostView);
+
+    }
 
     /**
      * Registers the AppWidgetHost to listen for updates to any widgets this app
@@ -260,37 +260,37 @@ public class WidgetFragment extends Fragment {
      */
     public void removeWidget(AppWidgetHostView hostView) {
         mAppWidgetHost.deleteAppWidgetId(hostView.getAppWidgetId());
-//        mainlayout.removeView(hostView);
+        mainlayout.removeView(hostView);
     }
 
 
-//    private void makeMyScrollSmart() {
-//        nestedScrollView.setOnTouchListener(new View.OnTouchListener() {
-//            @Override
-//            public boolean onTouch(View __v, MotionEvent __event) {
-//                if (__event.getAction() == MotionEvent.ACTION_DOWN) {
-//                    //  Disallow the touch request for parent scroll on touch of child view
-//                    requestDisallowParentInterceptTouchEvent(__v, true);
-//                } else if (__event.getAction() == MotionEvent.ACTION_UP || __event.getAction() == MotionEvent.ACTION_CANCEL) {
-//                    // Re-allows parent events
-//                    requestDisallowParentInterceptTouchEvent(__v, false);
-//                }
-//                return false;
-//            }
-//        });
-//    }
-//
-//    private void requestDisallowParentInterceptTouchEvent(View __v, Boolean __disallowIntercept) {
-//        while (__v.getParent() != null && __v.getParent() instanceof View) {
-//            if (__v.getParent() instanceof NestedScrollView) {
-//                __v.getParent().requestDisallowInterceptTouchEvent(__disallowIntercept);
-//            }
-//            __v = (View) __v.getParent();
-//        }
-//    }
+    private void makeMyScrollSmart() {
+        nestedScrollView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View __v, MotionEvent __event) {
+                if (__event.getAction() == MotionEvent.ACTION_DOWN) {
+                    //  Disallow the touch request for parent scroll on touch of child view
+                    requestDisallowParentInterceptTouchEvent(__v, true);
+                } else if (__event.getAction() == MotionEvent.ACTION_UP || __event.getAction() == MotionEvent.ACTION_CANCEL) {
+                    // Re-allows parent events
+                    requestDisallowParentInterceptTouchEvent(__v, false);
+                }
+                return false;
+            }
+        });
+    }
+
+    private void requestDisallowParentInterceptTouchEvent(View __v, Boolean __disallowIntercept) {
+        while (__v.getParent() != null && __v.getParent() instanceof View) {
+            if (__v.getParent() instanceof NestedScrollView) {
+                __v.getParent().requestDisallowInterceptTouchEvent(__disallowIntercept);
+            }
+            __v = (View) __v.getParent();
+        }
+    }
 
 
-    public static void dumpIntent(Intent i){
+    public static void dumpIntent(Intent i) {
 
         String LOG_TAG = "INTENT EXTRA";
 
@@ -298,24 +298,24 @@ public class WidgetFragment extends Fragment {
         if (bundle != null) {
             Set<String> keys = bundle.keySet();
             Iterator<String> it = keys.iterator();
-            Log.e(LOG_TAG,"Dumping Intent start");
+            Log.e(LOG_TAG, "Dumping Intent start");
             while (it.hasNext()) {
                 String key = it.next();
-                Log.e(LOG_TAG,"[" + key + "=" + bundle.get(key)+"]");
+                Log.e(LOG_TAG, "[" + key + "=" + bundle.get(key) + "]");
             }
-            Log.e(LOG_TAG,"Dumping Intent end");
+            Log.e(LOG_TAG, "Dumping Intent end");
         }
     }
 
 
-
-
-    public void loadWidgets(){
+    public void loadWidgets() {
 
 
     }
 
-    public class LoadWidgets extends AsyncTask<Void,Void,Void>{
+    public class LoadWidgets extends AsyncTask<Void, Void, Void> {
+
+        int[] widgetId;
 
         @Override
         protected Void doInBackground(Void... params) {
@@ -324,76 +324,29 @@ public class WidgetFragment extends Fragment {
 
             Cursor cursor = widgetDBHelper.getWidgets();
             cursor.moveToFirst();
+            int i = 0;
 
+            widgetId = new int[cursor.getCount()];
             count = cursor.getCount();
-            widgetId = new String[count];
-            int i=0;
-            while (!cursor.isAfterLast()){
-                widgetId[i] = cursor.getString(1);
-                i++;
+            while (!cursor.isAfterLast()) {
+                widgetId[i] = Integer.parseInt(cursor.getString(1));
                 cursor.moveToNext();
+                i++;
             }
 
             cursor.close();
 
             return null;
         }
+
         @Override
         protected void onPostExecute(Void result) {
-//            mainlayout.addView(hostView);
-//            Log.i("ASYNC",widgetId[0] +", " + widgetId[1]);
-//            widgetListView.setAdapter(new WidgetListAdapter(getActivity(),widgetId));
 
-//            widgetListView.setAdapter(new WidgetRecyclerAdapter(getActivity(),widgetId));
-//            main
+            for (int i = 0; i < widgetId.length; i++)
 
+                setupWidget(widgetId[i]);
 
         }
-
-
-    }
-
-    public AppWidgetHostView setupWidget(int widgetId){
-
-        AppWidgetProviderInfo appWidgetInfo = WidgetFragment.mAppWidgetManager.getAppWidgetInfo(widgetId);
-        String label = appWidgetInfo.label;
-//        appWidgetInfo.configure;
-
-
-        AppWidgetHostView hostView;
-        Log.i("WIDGET LABEL", label);
-
-
-        hostView = WidgetFragment.mAppWidgetHost.createView(getActivity(), widgetId, appWidgetInfo);
-        hostView.setAppWidget(widgetId, appWidgetInfo);
-//        hostView.setMinimumHeight(300);
-        if (label.equals("Gmail") || label.equals("Hangouts")){
-            hostView.setLayoutParams(
-                    new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
-                            300));
-        }else {
-            hostView.setLayoutParams(
-                    new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
-                            LinearLayout.LayoutParams.WRAP_CONTENT));
-        }
-
-//        hostView.setOnTouchListener(new View.OnTouchListener() {
-//
-//            @Override
-//            public boolean onTouch(View v, MotionEvent event) {
-//                Log.v("WIDGET", "CHILD TOUCH");
-//
-//                // Disallow the touch request for parent scroll on touch of  child view
-//                v.getParent().requestDisallowInterceptTouchEvent(true);
-//                return false;
-//            }
-//        });
-
-
-
-
-        Log.i("WIDGET", "The widget size is: " + hostView.getWidth() + "*" + hostView.getHeight());
-        return hostView;
 
     }
 

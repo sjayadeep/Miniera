@@ -138,7 +138,7 @@ public class HomeFragment extends Fragment {
                         break;
                     case 1:
 //                        getActivity().getSupportFragmentManager().beginTransaction()
-//                                .add(R.id.mode_fragmentContainer, new MusicFragment())
+//                                .add(R.id.mode_fragmentContainer, new MusicFragmentv14())
 //                                .addToBackStack("MINI DRAWER")
 //                                .commit();
                         Log.d("HEADSET", "Plugged in");

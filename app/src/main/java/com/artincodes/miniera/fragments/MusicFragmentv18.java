@@ -10,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -36,11 +37,15 @@ public  class MusicFragmentv18 extends Fragment {
     private TextView textTitle;
     private TextView textAlbumTitle;
     private TextView textArtist;
-    //private TextView mAlbumTextView;
     private FloatingActionButton buttonPlay;
     private FloatingActionButton buttonPrevious;
     private FloatingActionButton buttonNext;
     private SeekBar musicSeekBar;
+    RelativeLayout musicLayout;
+    Bitmap artworkBitmap;
+
+    String artistString,titleString,albumString;
+
 
 
     private CircularImageView imageAlbumArt;
@@ -69,10 +74,7 @@ public  class MusicFragmentv18 extends Fragment {
         textTitle=(TextView)rootView.findViewById(R.id.textTitle);
         textAlbumTitle = (TextView)rootView.findViewById(R.id.textAlbum);
         textArtist = (TextView)rootView.findViewById(R.id.textArtist);
-//        textAlbumTitle.setShadowLayer(3, 0, 2, Color.BLACK);
-//        textArtist.setShadowLayer(3, 0, 2, Color.BLACK);
-        //textAlbumTitle.setTypeface(MyActivity.robotoCond);
-       // textSubTitles.setTypeface(MyActivity.robotoCond);
+        musicLayout = (RelativeLayout) rootView.findViewById(R.id.music_layout);
         imageAlbumArt = (CircularImageView)rootView.findViewById(R.id.imageArtWork);
         buttonPlay = (FloatingActionButton)rootView.findViewById(R.id.buttonPlay);
         buttonPrevious = (FloatingActionButton)rootView.findViewById(R.id.buttonPrev);
@@ -88,9 +90,16 @@ public  class MusicFragmentv18 extends Fragment {
             public void onMetadataChanged(String artist, String title,
                                           String album, String albumArtist, long duration) {
                 //mArtistTextView.setText("ARTIST: "+artist);
-                textTitle.setText(title);
-                textAlbumTitle.setText(album);
-                textArtist.setText(artist);
+
+                artistString = artist;
+                titleString = title;
+                albumString = album;
+
+                textTitle.setText(titleString);
+                textAlbumTitle.setText(albumString);
+                textArtist.setText(artistString);
+
+
             }
         });
 
@@ -129,6 +138,7 @@ public  class MusicFragmentv18 extends Fragment {
             @Override
             public void onArtworkChanged(Bitmap artwork) {
                 imageAlbumArt.setImageBitmap(artwork);
+                artworkBitmap = artwork;
 //                blurArtWork = BlurBuilder.fastblur(artwork,12);
             }
         });
@@ -172,6 +182,19 @@ public  class MusicFragmentv18 extends Fragment {
 
         //acquiring remote media controls
         mProvider.acquireRemoteControls();
+        if (mProvider.isClientActive()){
+            musicLayout.setVisibility(View.VISIBLE);
+
+            textTitle.setText(titleString);
+            textAlbumTitle.setText(albumString);
+            textArtist.setText(artistString);
+            imageAlbumArt.setImageBitmap(artworkBitmap);
+
+        }
+        else{
+
+            musicLayout.setVisibility(View.GONE);
+        }
     }
 
     @Override

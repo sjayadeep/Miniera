@@ -62,7 +62,7 @@ public class WeatherDBHelper extends SQLiteOpenHelper{
         contentValues.put(COLUMN_LOCATION,location);
         db.insert(TABLE_NAME, null, contentValues);
 
-        Log.i("WEATHER","UPDATED");
+        Log.i("WEATHER", "UPDATED");
 
     }
 
@@ -72,4 +72,6 @@ public class WeatherDBHelper extends SQLiteOpenHelper{
         return db.rawQuery("select * from " + TABLE_NAME, null);
 
     }
+
+
 }
