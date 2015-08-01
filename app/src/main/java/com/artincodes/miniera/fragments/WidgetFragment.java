@@ -82,6 +82,7 @@ public class WidgetFragment extends Fragment {
 //        nestedScrollView = (NestedScrollView)rootView.findViewById(R.id.nestedScrollView);
         mainlayout = (ViewGroup) rootView.findViewById(R.id.widget_layout);
         widgetDBHelper = new WidgetDBHelper(getActivity());
+//        widgetDBHelper.clearDb();
 
 //        makeMyScrollSmart();
 
@@ -215,6 +216,14 @@ public class WidgetFragment extends Fragment {
                     new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
                             LinearLayout.LayoutParams.WRAP_CONTENT));
         }
+
+        hostView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+
+                return false;
+            }
+        });
 
 //        hostView.setOnTouchListener(new View.OnTouchListener() {
 //

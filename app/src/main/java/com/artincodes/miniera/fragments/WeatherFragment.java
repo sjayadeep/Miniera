@@ -51,6 +51,8 @@ public class WeatherFragment extends Fragment {
     private TextView gmailCountText;
 
     public int countUnread = 0;
+    String un;
+
 
     String TAG = "WEATHER FRAGMENT";
 
@@ -78,9 +80,11 @@ public class WeatherFragment extends Fragment {
 
         temperatureText.setTypeface(robotoCond);
 
+        getGmailUnreadCount();
 //        circularProgressBar = (CircularProgressBar) rootView.findViewById(R.id.progress_weather);
 //        circularProgressBar.setVisibility(View.INVISIBLE);
 
+//        un
 
         return rootView;
     }
@@ -105,7 +109,6 @@ public class WeatherFragment extends Fragment {
 
         callCountText.setText("" + getMissedCallCount());
         smsCountText.setText("" + getUnreadSMSCount());
-        gmailCountText.setText(getGmailUnreadCount()+"");
 
 
 
@@ -129,7 +132,7 @@ public class WeatherFragment extends Fragment {
         return c.getCount();
     }
 
-    public int getGmailUnreadCount() {
+    public void getGmailUnreadCount() {
 
 
         final String ACCOUNT_TYPE_GOOGLE = "com.google";
@@ -153,14 +156,29 @@ public class WeatherFragment extends Fragment {
                                             LabelCanonicalNames.CANONICAL_NAME_INBOX;
                                     final int canonicalNameIndex = c.getColumnIndexOrThrow
                                             (GmailContract.Labels.CANONICAL_NAME);
+
+//                                    c.moveToFirst();
+
                                     while (c.moveToNext()) {
-                                        if (inboxCanonicalName.equals(c.getString(canonicalNameIndex))) {
+
+
+                                        Log.i(TAG,inboxCanonicalName +" : " + c.getString(canonicalNameIndex));
+
+
+                                        if (inboxCanonicalName.equals(c.getString(canonicalNameIndex))||"^sq_ig_i_personal".equals(c.getString(canonicalNameIndex))) {
+
+                                            Log.i(TAG,"inside gmail function");
+
+
                                             int count = c.getColumnIndexOrThrow(GmailContract.Labels.
                                                     NUM_UNREAD_CONVERSATIONS);
-                                            String un = c.getString(count);
-                                            Toast.makeText(getActivity(), un,
-                                                    Toast.LENGTH_LONG).show();
-                                            countUnread = Integer.parseInt(un);
+                                            un = c.getString(count);
+//                                            Toast.makeText(getActivity(), un,
+//                                                    Toast.LENGTH_LONG).show();
+                                            gmailCountText.setText(un);
+
+//                                            countUnread = Integer.parseInt(un);
+
                                         }
                                     }
                                 }
@@ -177,11 +195,13 @@ public class WeatherFragment extends Fragment {
                             //handle
                             Log.i(TAG,"ae");
 
+                        }catch (NullPointerException e){
+                            Log.i(TAG,"NPE");
                         }
 
                     }
                 }, null);
-        return countUnread;
+//        return un;
     }
 
 

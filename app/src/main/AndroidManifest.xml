@@ -42,19 +42,17 @@
 
 
 
-
-
         <service
-            android:name=".utils.music.RemoteControlService"
-            android:enabled="true"
-            android:label="Audio remote control service"
-            android:exported="true"
+            android:name="com.artincodes.miniera.utils.music.RemoteControlService"
+            android:label="Miniera"
             android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE" >
             <intent-filter>
                 <action android:name="android.service.notification.NotificationListenerService" />
                 <action android:name="com.artincodes.miniera.utils.music.BIND_RC_CONTROL_SERVICE" />
             </intent-filter>
         </service>
+
+
 
 
     </application>

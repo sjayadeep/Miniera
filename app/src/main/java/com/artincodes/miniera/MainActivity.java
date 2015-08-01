@@ -1,5 +1,6 @@
 package com.artincodes.miniera;
 
+import android.app.ActionBar;
 import android.app.ActivityManager;
 import android.app.WallpaperManager;
 import android.content.BroadcastReceiver;
@@ -7,6 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
@@ -14,6 +16,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Vibrator;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -21,8 +24,11 @@ import android.support.v4.view.ViewPager;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.KeyCharacterMap;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.artincodes.miniera.fragments.HomeFragment;
@@ -53,9 +59,11 @@ import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.melnykov.fab.FloatingActionButton;
+
 
 public class MainActivity extends AppCompatActivity implements
-        GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,LocationListener {
+        GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
 
 
     HomeViewPagerAdapter pageAdapter;
@@ -66,7 +74,7 @@ public class MainActivity extends AppCompatActivity implements
     private ImageView wallpaperImageView;
     Drawable wallpaperDrawable;
     private ImageView blurredImageView;
-    com.melnykov.fab.FloatingActionButton minieraFAB;
+    FloatingActionButton minieraFAB;
 
     public static MiniDrawerAppsDBHelper miniDrawerAppsDBHelper;
 
@@ -79,17 +87,38 @@ public class MainActivity extends AppCompatActivity implements
     LocationRequest mLocationRequest;
 
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        boolean hasBackKey = KeyCharacterMap.deviceHasKey(KeyEvent.KEYCODE_BACK);
 
-//        setS
-        wallpaperImageView = (ImageView)findViewById(R.id.wallpaper_image);
-        blurredImageView = (ImageView)findViewById(R.id.blurrered_image);
+
+        RelativeLayout mainActivityLayout = (RelativeLayout) findViewById(R.id.main_layout);
+        RelativeLayout.LayoutParams layoutParams =
+                new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT);
+
+
+        int marginTop = 0;
+        int marginBottom = 0;
+
+
+        if (Build.VERSION.SDK_INT >= 19) {
+            marginTop = getStatusBarHeight();
+//            layoutParams.setMargins(0,getStatusBarHeight(), 0, getNavigationBarHeight());
+        }
+        if (!hasBackKey) {
+            marginBottom = getNavigationBarHeight();
+        }
+
+        layoutParams.setMargins(0, marginTop, 0, marginBottom);
+
+        mainActivityLayout.setLayoutParams(layoutParams);
+
+        wallpaperImageView = (ImageView) findViewById(R.id.wallpaper_image);
+        blurredImageView = (ImageView) findViewById(R.id.blurrered_image);
 
         new SetWallPaperTask().execute();
         buildGoogleApiClient();
@@ -98,7 +127,7 @@ public class MainActivity extends AppCompatActivity implements
 
         blurredImageView.setAlpha(0f);
 
-        minieraFAB = (com.melnykov.fab.FloatingActionButton)findViewById(R.id.miniera_FAB);
+        minieraFAB = (FloatingActionButton) findViewById(R.id.miniera_FAB);
         miniDrawerAppsDBHelper = new MiniDrawerAppsDBHelper(getApplicationContext());
         AppsDB = new AppsDBHelper(getApplication());
 
@@ -106,7 +135,8 @@ public class MainActivity extends AppCompatActivity implements
 
         pageAdapter = new HomeViewPagerAdapter(getSupportFragmentManager(), fragments);
 
-        pager = (ViewPager)findViewById(R.id.viewpager);
+        pager = (ViewPager) findViewById(R.id.viewpager);
+        pager.setOffscreenPageLimit(2);
 
 
         pager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
@@ -188,7 +218,7 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void onResume(){
+    public void onResume() {
         super.onResume();
         new SetWallPaperTask().execute();
     }
@@ -226,7 +256,7 @@ public class MainActivity extends AppCompatActivity implements
     public void onConnected(Bundle bundle) {
 
 //        if (mRequestingLocationUpdates) {
-            startLocationUpdates();
+        startLocationUpdates();
 //        }
 
         mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
@@ -260,8 +290,6 @@ public class MainActivity extends AppCompatActivity implements
     }
 
 
-
-
     public void setWeather(Location location) {
 
         final WeatherDBHelper weatherDBHelper = new WeatherDBHelper(getApplicationContext());
@@ -279,7 +307,7 @@ public class MainActivity extends AppCompatActivity implements
                 "&format=json&" +
                 "num_of_days=1&" +
                 "includelocation=yes&" +
-                "key="+API_KEY;
+                "key=" + API_KEY;
         client.get(URL, new AsyncHttpResponseHandler() {
 
             @Override
@@ -317,7 +345,7 @@ public class MainActivity extends AppCompatActivity implements
                     String areaName = areaOb.getString("value");
 //                    locationText.setText(areaName);
 
-                    weatherDBHelper.insertWeather(Integer.parseInt(weatherC),weatherDes,areaName);
+                    weatherDBHelper.insertWeather(Integer.parseInt(weatherC), weatherDes, areaName);
                     //Toast.makeText(getActivity(),areaName, Toast.LENGTH_SHORT).show();
                     //JSONObject route = routesArray.getJSONObject(0);
 
@@ -354,12 +382,11 @@ public class MainActivity extends AppCompatActivity implements
     //    ********************************** WEATHER ends ***************************************************
 
 
-
     public class PacReceiver extends BroadcastReceiver {
 
         @Override
         public void onReceive(Context arg0, Intent arg1) {
-            Log.i("PAC RECIEVER","PACKAGE CHANGED");
+            Log.i("PAC RECIEVER", "PACKAGE CHANGED");
 
             new LoadApplicationTask().execute();
         }
@@ -389,10 +416,10 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void onBackPressed(){
+    public void onBackPressed() {
 
         getSupportFragmentManager().popBackStack();
-        pager.setCurrentItem(1,true);
+        pager.setCurrentItem(1, true);
         minieraFAB.show();
     }
 
@@ -402,7 +429,7 @@ public class MainActivity extends AppCompatActivity implements
         super.onNewIntent(intent);
         if (Intent.ACTION_MAIN.equals(intent.getAction())) {
             getSupportFragmentManager().popBackStack();
-            pager.setCurrentItem(1,true);
+            pager.setCurrentItem(1, true);
             minieraFAB.show();
 
         }
@@ -415,7 +442,7 @@ public class MainActivity extends AppCompatActivity implements
 //    }
 
 
-    private List<Fragment> getFragments(){
+    private List<Fragment> getFragments() {
 
         List<Fragment> fList = new ArrayList<Fragment>();
 
@@ -429,7 +456,7 @@ public class MainActivity extends AppCompatActivity implements
 
     }
 
-    private class SetWallPaperTask extends AsyncTask<Void,Void,Void>{
+    private class SetWallPaperTask extends AsyncTask<Void, Void, Void> {
 
         @Override
         protected Void doInBackground(Void... params) {
@@ -449,15 +476,15 @@ public class MainActivity extends AppCompatActivity implements
     }
 
 
-    private class BlurredImageTask extends AsyncTask<Void,Void,Void>{
+    private class BlurredImageTask extends AsyncTask<Void, Void, Void> {
 
         Bitmap bitmap;
 
         @Override
         protected Void doInBackground(Void... params) {
 
-            bitmap = ((BitmapDrawable)wallpaperImageView.getDrawable()).getBitmap();
-            bitmap = scaleDown(bitmap,300f,true);
+            bitmap = ((BitmapDrawable) wallpaperImageView.getDrawable()).getBitmap();
+            bitmap = scaleDown(bitmap, 300f, true);
             bitmap = BlurBuilder.fastblur(bitmap, 20);
 
             return null;
@@ -469,8 +496,8 @@ public class MainActivity extends AppCompatActivity implements
             blurredImageView.setColorFilter(Color.rgb(123, 123, 123), PorterDuff.Mode.MULTIPLY);
         }
 
-        protected  Bitmap scaleDown(Bitmap realImage, float maxImageSize,
-                                    boolean filter) {
+        protected Bitmap scaleDown(Bitmap realImage, float maxImageSize,
+                                   boolean filter) {
             float ratio = Math.min(
                     (float) maxImageSize / realImage.getWidth(),
                     (float) maxImageSize / realImage.getHeight());
@@ -484,10 +511,10 @@ public class MainActivity extends AppCompatActivity implements
     }
 
 
-    public class BoostDevice extends AsyncTask<Void,Void,Void>{
+    public class BoostDevice extends AsyncTask<Void, Void, Void> {
 
         ActivityManager.MemoryInfo memoryInfo;
-        ActivityManager activityManager ;
+        ActivityManager activityManager;
         Vibrator mVibrator;
 
 
@@ -498,7 +525,7 @@ public class MainActivity extends AppCompatActivity implements
             memoryInfo = new ActivityManager.MemoryInfo();
             activityManager = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
             activityManager.getMemoryInfo(memoryInfo);
-            Log.i("AVAILABLE MEMORY",(memoryInfo.availMem) +" : TOTAL" + getTotalRAM());
+            Log.i("AVAILABLE MEMORY", (memoryInfo.availMem) + " : TOTAL" + getTotalRAM());
 
             for (ActivityManager.RunningAppProcessInfo pid : activityManager.getRunningAppProcesses()) {
                 activityManager.killBackgroundProcesses(pid.processName);
@@ -512,8 +539,7 @@ public class MainActivity extends AppCompatActivity implements
         protected void onPostExecute(Void result) {
 
 
-
-            Toast.makeText(getApplicationContext(),"Boosted",Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), "Boosted", Toast.LENGTH_SHORT).show();
             Log.i("BOOSTED MEMORY", memoryInfo.availMem + " : TOTAL" + getTotalRAM());
 
 
@@ -533,12 +559,28 @@ public class MainActivity extends AppCompatActivity implements
             return load;
         }
 
+
     }
 
 
+    public int getNavigationBarHeight() {
+        Resources resources = getApplicationContext().getResources();
+        int resourceId = resources.getIdentifier("navigation_bar_height", "dimen", "android");
+        if (resourceId > 0) {
+            return resources.getDimensionPixelSize(resourceId);
+        }
+        return 0;
+//            int dimensionPixelSize = resources.getDimensionPixelSize(resourceId);
+    }
 
-
-
+    public int getStatusBarHeight() {
+        int result = 0;
+        int resourceId = getResources().getIdentifier("status_bar_height", "dimen", "android");
+        if (resourceId > 0) {
+            result = getResources().getDimensionPixelSize(resourceId);
+        }
+        return result;
+    }
 
 
 }

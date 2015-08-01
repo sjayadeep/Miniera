@@ -6,6 +6,7 @@
     android:layout_height="match_parent"
     tools:context="com.artincodes.miniera.fragments.MusicFragmentv14"
     android:padding="16dp"
+    android:animateLayoutChanges="true"
     android:id="@+id/music_layout"
     android:layout_alignParentTop="true">
 

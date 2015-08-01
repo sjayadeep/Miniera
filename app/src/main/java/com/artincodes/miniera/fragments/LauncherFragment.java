@@ -92,9 +92,9 @@ public class LauncherFragment extends Fragment {
 
         Toolbar toolbar = (Toolbar) rootView.findViewById(R.id.apps_toolbar);
 //        toolbar.inflateMenu(R.menu.menu_main);
-        searchGridView = (GridView)rootView.findViewById(R.id.search_grid);
+        searchGridView = (GridView) rootView.findViewById(R.id.search_grid);
         searchGridView.setVisibility(View.GONE);
-        appsSearchView = (SearchView)rootView.findViewById(R.id.app_search_view);
+        appsSearchView = (SearchView) rootView.findViewById(R.id.app_search_view);
         appsRecyclerView = (RecyclerView) rootView.findViewById(R.id.apps_recycler_view);
         appsRecyclerView.setHasFixedSize(true);
         LinearLayoutManager llm = new LinearLayoutManager(getActivity());
@@ -102,11 +102,11 @@ public class LauncherFragment extends Fragment {
         appsRecyclerView.setLayoutManager(llm);
         AppsDB = new AppsDBHelper(getActivity());
         scrollView = (NestedScrollView) rootView.findViewById(R.id.scrollView);
-        searchTextTitle = (TextView)rootView.findViewById(R.id.search_text_title);
+        searchTextTitle = (TextView) rootView.findViewById(R.id.search_text_title);
 
         ((AppCompatActivity) getActivity()).setSupportActionBar(toolbar);
 
-            new SetDrawer().execute();
+        new SetDrawer().execute();
 
         appsSearchView.setOnQueryTextFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
@@ -147,17 +147,6 @@ public class LauncherFragment extends Fragment {
             @Override
             public boolean onQueryTextChange(String query) {
 
-//                Log.i(TAG,newText);
-//                if (!newText.equals("")){
-////
-//                    appsRecyclerView.setVisibility(View.VISIBLE);
-//                    searchTextTitle.setVisibility(View.VISIBLE);
-//
-//                }else {
-//                    appsRecyclerView.setVisibility(View.GONE);
-//                    searchTextTitle.setVisibility(View.GONE);
-//                }
-
                 Cursor seachCursor = AppsDB.searchApps(query);
                 seachCursor.moveToFirst();
 
@@ -179,7 +168,7 @@ public class LauncherFragment extends Fragment {
                     try {
                         if (searchLabels[i].equals("Phone")) {
                             searchIcons[i] = MainActivity.packageManager.getApplicationIcon("com.android.phone");
-                        }else
+                        } else
                             searchIcons[i] = MainActivity.packageManager.getApplicationIcon(searchPackageNames[i]);
                     } catch (PackageManager.NameNotFoundException e) {
                         e.printStackTrace();
@@ -187,7 +176,6 @@ public class LauncherFragment extends Fragment {
                         Log.i("PACKAGE", searchPackageNames[i]);
                     }
 
-//                    Log.i(TAG,"Searched apps"+searchLabels[i]);
                     appSearchList.add(new AppPack(searchLabels[i], searchPackageNames[i], searchIcons[i]));
 
                     i++;
@@ -201,7 +189,7 @@ public class LauncherFragment extends Fragment {
 
                 searchGridView.setAdapter(new DrawerAdapter(getActivity(), appSearchList));
                 searchGridView.setOnItemClickListener(new DrawerClickListener(getActivity(), appSearchList));
-                searchGridView.setOnItemLongClickListener(new DrawerLongClickListener(getActivity(),appSearchList));
+                searchGridView.setOnItemLongClickListener(new DrawerLongClickListener(getActivity(), appSearchList));
 
                 return false;
             }
@@ -211,11 +199,9 @@ public class LauncherFragment extends Fragment {
             @Override
             public boolean onKey(View v, int keyCode, KeyEvent event) {
 
-                if (event.getAction() == KeyEvent.ACTION_DOWN)
-                {
+                if (event.getAction() == KeyEvent.ACTION_DOWN) {
                     //check if the right key was pressed
-                    if (keyCode == KeyEvent.KEYCODE_BACK)
-                    {
+                    if (keyCode == KeyEvent.KEYCODE_BACK) {
 //                        InputMethodManager imm = (InputMethodManager)getActivity().getSystemService(
 //                                Context.INPUT_METHOD_SERVICE);
 //                        imm.hideSoftInputFromWindow(edtTransactionDesc.getWindowToken(), 0);
@@ -270,7 +256,7 @@ public class LauncherFragment extends Fragment {
             Log.i("DRAWER", "DO IN BG IS CALLED");
 
             if (true) {
-                adapterSet=false;
+                adapterSet = false;
                 fullAppsList.clear();
                 Log.i("DRAWER", "INSIDE CONDITION");
 
@@ -292,7 +278,7 @@ public class LauncherFragment extends Fragment {
                     try {
                         if (labels[i].equals("Phone")) {
                             icons[i] = MainActivity.packageManager.getApplicationIcon("com.android.phone");
-                        }else
+                        } else
                             icons[i] = MainActivity.packageManager.getApplicationIcon(packageNames[i]);
                     } catch (PackageManager.NameNotFoundException e) {
                         e.printStackTrace();
@@ -312,7 +298,7 @@ public class LauncherFragment extends Fragment {
 
             mapIndex = new LinkedHashMap<String, Integer>();
             mapIndex.clear();
-            count=0;
+            count = 0;
 
 
             for (int i = 0; i < labels.length; i++) {
@@ -344,14 +330,13 @@ public class LauncherFragment extends Fragment {
 
             displayIndex();
             Log.i(TAG, "Calling Adapter");
-            appsRecyclerViewAdapter=null;
+            appsRecyclerViewAdapter = null;
 //            if (adapterSet == false) {
-                appsRecyclerViewAdapter = new AppsRecyclerViewAdapter(getActivity(), fullAppsList);
-                adapterSet=true;
+            appsRecyclerViewAdapter = new AppsRecyclerViewAdapter(getActivity(), fullAppsList);
+            adapterSet = true;
 //            }
 
             appsRecyclerView.setAdapter(appsRecyclerViewAdapter);
-
 
 
         }
@@ -368,19 +353,19 @@ public class LauncherFragment extends Fragment {
     }
 
     @Override
-    public void onPause(){
+    public void onPause() {
         clearSearchView();
 
         super.onPause();
     }
 
 
-    public void clearSearchView(){
+    public void clearSearchView() {
         appsRecyclerView.setVisibility(View.VISIBLE);
         searchTextTitle.setVisibility(View.VISIBLE);
         try {
             indexLayout.setVisibility(View.VISIBLE);
-        }catch (NullPointerException e){
+        } catch (NullPointerException e) {
 
         }
 

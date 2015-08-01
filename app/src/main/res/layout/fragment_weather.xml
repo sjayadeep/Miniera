@@ -123,7 +123,7 @@
                 android:layout_marginLeft="10dp"
                 android:gravity="center"
                 android:textSize="@dimen/abc_text_size_small_material"
-                android:text="12"
+                android:text=""
                 android:textColor="#fff"
                 android:background="@drawable/notification_badge"
                 />

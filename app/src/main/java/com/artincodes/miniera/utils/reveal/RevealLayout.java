@@ -195,7 +195,7 @@ public class RevealLayout extends FrameLayout{
             mClipPath.reset();
             mClipPath.addCircle(mClipCenterX, mClipCenterY, mClipRadius, Path.Direction.CW);
 
-            Log.d("RevealLayout", "ClipRadius: " + mClipRadius);
+//            Log.d("RevealLayout", "ClipRadius: " + mClipRadius);
             canvas.save();
             canvas.clipPath(mClipPath);
             result = super.drawChild(canvas, child, drawingTime);
