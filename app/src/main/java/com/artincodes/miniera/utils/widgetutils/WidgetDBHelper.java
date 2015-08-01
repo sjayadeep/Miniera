@@ -12,12 +12,12 @@ import com.artincodes.miniera.MainActivity;
 /**
  * Created by jayadeep on 17/7/15.
  */
-public class WidgetDBHelper extends SQLiteOpenHelper{
+public class WidgetDBHelper extends SQLiteOpenHelper {
 
 
     public static final String DATABASE_NAME = "Widget.db";
     public static final String TABLE_NAME = "widget_table";
-    public static final String COLUMN_INDEX= "widget_index";
+    public static final String COLUMN_INDEX = "widget_index";
     public static final String COLUMN_WIDGET_ID = "widget_id";
     Context mContext;
 
@@ -49,7 +49,7 @@ public class WidgetDBHelper extends SQLiteOpenHelper{
     }
 
 
-    public void insertWidget(int index, int id){
+    public void insertWidget(int index, int id) {
 
         SQLiteDatabase db = this.getWritableDatabase();
 
@@ -61,38 +61,38 @@ public class WidgetDBHelper extends SQLiteOpenHelper{
 
     }
 
-    public Cursor getWidgets(){
+    public Cursor getWidgets() {
 
         SQLiteDatabase db = this.getReadableDatabase();
         return db.rawQuery("select * from " + TABLE_NAME, null);
 
     }
 
-    public void clearDb(){
+    public void clearDb() {
         SQLiteDatabase db = this.getWritableDatabase();
-        db.delete(TABLE_NAME,null,null);
+        db.delete(TABLE_NAME, null, null);
 
     }
 
-    public boolean deleteWidget(int index) {
+    public boolean deleteWidget(int widgetID) {
 
         SQLiteDatabase db = this.getWritableDatabase();
-        db.delete(TABLE_NAME, COLUMN_INDEX + " = ?", new String[]{index + ""});
-        Cursor c = this.getWidgets();
-        c.moveToFirst();
-        int i = 0;
-        while (!c.isAfterLast()) {
-            String widgetID = c.getString(1);
-            ContentValues contentValues = new ContentValues();
-            contentValues.put(COLUMN_INDEX, i);
-            db.update(TABLE_NAME,
-                    contentValues,
-                    COLUMN_WIDGET_ID+ " = ?",
-                    new String[]{widgetID});
-            c.moveToNext();
-            i++;
+        db.delete(TABLE_NAME, COLUMN_WIDGET_ID + " = ?", new String[]{widgetID + ""});
+//        Cursor c = this.getWidgets();
+//        c.moveToFirst();
+//        int i = 0;
+//        while (!c.isAfterLast()) {
+//            String widgetID = c.getString(1);
+//            ContentValues contentValues = new ContentValues();
+//            contentValues.put(COLUMN_INDEX, i);
+//            db.update(TABLE_NAME,
+//                    contentValues,
+//                    COLUMN_WIDGET_ID+ " = ?",
+//                    new String[]{widgetID});
+//            c.moveToNext();
+//            i++;
 
-        }
+//        }
         return true;
 
     }

@@ -9,7 +9,7 @@
     <EditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:inputType="textCapSentences|textMultiLine"
+        android:inputType="textCapSentences"
         android:padding="0dp"
         android:textColor="#000"
         android:focusable="true"
