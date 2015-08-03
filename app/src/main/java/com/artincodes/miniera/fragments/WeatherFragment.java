@@ -107,7 +107,12 @@ public class WeatherFragment extends Fragment {
 
         cursor.close();
 
-        callCountText.setText("" + getMissedCallCount());
+        try {
+            callCountText.setText("" + getMissedCallCount());
+
+        }catch (NullPointerException E){
+
+        }
         smsCountText.setText("" + getUnreadSMSCount());
 
 

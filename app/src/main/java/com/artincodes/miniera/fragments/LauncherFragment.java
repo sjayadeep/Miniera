@@ -53,6 +53,7 @@ public class LauncherFragment extends Fragment {
     String[] labels;
     String[] packageNames;
     Drawable[] icons;
+    public static boolean appLaunchable = true;
 
     List<AppPack> appList = new ArrayList<>();
 
@@ -373,6 +374,8 @@ public class LauncherFragment extends Fragment {
         appsSearchView.onActionViewCollapsed();
 
     }
+
+
 
 
 }

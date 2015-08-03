@@ -275,6 +275,9 @@ public class MusicFragment extends Fragment {
             //Getting the binder and activating RemoteController instantly
             RemoteControlService.RCBinder binder = (RemoteControlService.RCBinder) service;
             mRCService = binder.getService();
+//            try {
+//
+//            }catch (SecurityException)
             mRCService.setRemoteControllerEnabled();
             mRCService.setClientUpdateListener(mClientUpdateListener);
             mBound = true;

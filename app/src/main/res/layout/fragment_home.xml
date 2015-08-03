@@ -26,9 +26,17 @@
         android:includeFontPadding="false"
         />
 
-    <FrameLayout
-        android:id="@+id/mode_fragmentContainer"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
+
+    <GridView
+        android:layout_width="match_parent"
+        android:id="@+id/dock_grid"
+        android:layout_height="?attr/actionBarSize"
+        android:columnWidth="90dp"
+        android:numColumns="5"
+        android:verticalSpacing="25dp"
+        android:stretchMode="spacingWidthUniform"
+        android:gravity="center"
+        android:layout_marginBottom="16dp"
+        android:layout_alignParentBottom="true"/>
 
 </RelativeLayout>

@@ -5,8 +5,11 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.provider.AlarmClock;
 import android.support.v4.app.Fragment;
@@ -14,15 +17,22 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.GridView;
 import android.widget.TextView;
 
+import com.artincodes.miniera.MainActivity;
 import com.artincodes.miniera.R;
 import com.artincodes.miniera.utils.HomeViewPagerAdapter;
+import com.artincodes.miniera.utils.dock.DockAppsDBHelper;
+import com.artincodes.miniera.utils.dock.ImageAdapter;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+
+import me.drakeet.materialdialog.MaterialDialog;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -36,7 +46,8 @@ public class HomeFragment extends Fragment {
     public static TextView dateTextView;
     public static Typeface robotoCond;
     BroadcastReceiver timeBroadcastReciever;
-    private MusicIntentReceiver myReceiver;
+    static GridView dockGrid;
+    static Context c;
 
 
     public HomeFragment() {
@@ -48,17 +59,15 @@ public class HomeFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View rootView =  inflater.inflate(R.layout.fragment_home, container, false);
+        View rootView = inflater.inflate(R.layout.fragment_home, container, false);
+        dockGrid = (GridView) rootView.findViewById(R.id.dock_grid);
 
-        timeTextView = (TextView)rootView.findViewById(R.id.text_time);
-        dateTextView = (TextView)rootView.findViewById(R.id.text_date);
+        timeTextView = (TextView) rootView.findViewById(R.id.text_time);
+        dateTextView = (TextView) rootView.findViewById(R.id.text_date);
         robotoCond = Typeface.createFromAsset(getActivity().getBaseContext().getAssets(), "roboto_thin.ttf");
 
-        myReceiver = new MusicIntentReceiver();
-        IntentFilter filter = new IntentFilter(Intent.ACTION_HEADSET_PLUG);
-        getActivity().registerReceiver(myReceiver, filter);
 
-
+        c = getActivity();
 
 
         rootView.setOnLongClickListener(new View.OnLongClickListener() {
@@ -108,7 +117,7 @@ public class HomeFragment extends Fragment {
         String dateTime = _sdfWatchTime.format(new Date());
         String[] parts = dateTime.split(",");
         timeTextView.setText(parts[0]);
-        dateTextView.setText(parts[2]+", "+parts[1]);
+        dateTextView.setText(parts[2] + ", " + parts[1]);
 //        textDay.setText(parts[1]);
 
     }
@@ -122,33 +131,89 @@ public class HomeFragment extends Fragment {
     }
 
 
+    public static void updateDock() {
 
-    private class MusicIntentReceiver extends BroadcastReceiver {
-        @Override public void onReceive(Context context, Intent intent) {
-            if (intent.getAction().equals(Intent.ACTION_HEADSET_PLUG)) {
-                int state = intent.getIntExtra("state", -1);
-                List<Fragment> fragments;
-
-                switch (state) {
-                    case 0:
-//                        getActivity().getSupportFragmentManager().beginTransaction()
-//                                .remove(R.id.mode_fragmentContainer)
-                        Log.d("HEADSET", "UnPlugged");
-
-                        break;
-                    case 1:
-//                        getActivity().getSupportFragmentManager().beginTransaction()
-//                                .add(R.id.mode_fragmentContainer, new MusicFragmentv14())
-//                                .addToBackStack("MINI DRAWER")
-//                                .commit();
-                        Log.d("HEADSET", "Plugged in");
-
-                        break;
-                    default:
-                        Log.d("HEADSET", "I have no idea what the headset state is");
-                }
+        final DockAppsDBHelper dockAppsDBHelper = new DockAppsDBHelper(c);
+        Cursor cursor = dockAppsDBHelper.getDockApps();
+        String TAG = "UPDATE DOCK";
+        final String[] packageNames = new String[5];
+        final String[] labels = new String[5];
+        Drawable[] icons = new Drawable[5];
+        cursor.moveToFirst();
+        while (!cursor.isAfterLast()) {
+            int index = cursor.getInt(0);
+            labels[index] = cursor.getString(2);
+            if (labels[index].equals("Phone")) {
+                packageNames[index] = "com.android.phone";
+            } else {
+                packageNames[index] = cursor.getString(1);
             }
+
+            try {
+                icons[index] = MainActivity.packageManager.getApplicationIcon(packageNames[index]);
+            } catch (PackageManager.NameNotFoundException NNFE) {
+
+            } catch (NullPointerException NPE) {
+
+            }
+
+            Log.i(TAG, packageNames[index]);
+            cursor.moveToNext();
+
         }
+
+        dockGrid.setAdapter(new ImageAdapter(c, packageNames, icons));
+        dockGrid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                openApp(packageNames[position]);
+            }
+        });
+        dockGrid.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
+
+                final MaterialDialog DeleteAppDialog = new MaterialDialog(c);
+                DeleteAppDialog.setTitle("Remove")
+                        .setMessage("Do you want to remove "+labels[position]+"?")
+                        .setPositiveButton("DELETE", new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                dockAppsDBHelper.deleteApp(position);
+                                DeleteAppDialog.dismiss();
+                                updateDock();
+
+                            }
+                        })
+                        .setNegativeButton("CANCEL", new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                DeleteAppDialog.dismiss();
+                            }
+                        })
+                        .show();
+
+                return false;
+            }
+        });
+    }
+
+
+    private static void openApp(String packageName) {
+
+        Intent launchIntent=null;
+
+        if (packageName.equals("com.android.phone")){
+            launchIntent = new Intent(Intent.ACTION_DIAL);
+            launchIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        }else {
+            launchIntent = MainActivity.packageManager.getLaunchIntentForPackage(packageName);
+        }
+        c.startActivity(launchIntent);
+
     }
 
 }
+
+
+

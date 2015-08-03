@@ -94,8 +94,9 @@ public class TodoFragment extends Fragment {
             public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
                 final MaterialDialog dialog = new MaterialDialog(getActivity());
                 dialog.setTitle("Delete Task");
+                dialog.setBackground(getResources().getDrawable(R.drawable.bg_dialog));
                 dialog.setMessage("Have you done the task?\n" + tasks[position]);
-                dialog.setPositiveButton("Done", new View.OnClickListener() {
+                dialog.setPositiveButton("DONE", new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
 

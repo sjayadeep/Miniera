@@ -9,6 +9,7 @@
         android:layout_width="match_parent"
         android:layout_height="48dp"
         android:layout_margin="8dp"
+        android:animateLayoutChanges="true"
         android:background="@drawable/bg_launcher_toolbar"
         android:minHeight="?attr/actionBarSize">
 
@@ -16,6 +17,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="right|center_vertical"
+            android:animateLayoutChanges="true"
             android:orientation="horizontal">
 
 
@@ -37,6 +39,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="right"
+                android:animateLayoutChanges="true"
                 android:gravity="right" />
 
         </LinearLayout>

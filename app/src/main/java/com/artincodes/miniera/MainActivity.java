@@ -27,6 +27,7 @@ import android.util.Log;
 import android.view.KeyCharacterMap;
 import android.view.KeyEvent;
 import android.view.View;
+import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
@@ -410,6 +411,8 @@ public class MainActivity extends AppCompatActivity implements
         protected void onPostExecute(Void result) {
 
             Log.i("DB", AppsDB.getApps().getCount() + "");
+                HomeFragment.updateDock();
+
             super.onPostExecute(result);
         }
 
@@ -581,6 +584,8 @@ public class MainActivity extends AppCompatActivity implements
         }
         return result;
     }
+
+
 
 
 }

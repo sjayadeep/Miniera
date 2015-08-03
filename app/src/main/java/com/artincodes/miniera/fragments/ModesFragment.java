@@ -28,6 +28,8 @@ import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.artincodes.miniera.R;
+import com.artincodes.miniera.utils.widgetutils.LauncherAppWidgetHost;
+import com.artincodes.miniera.utils.widgetutils.LauncherAppWidgetHostView;
 import com.artincodes.miniera.utils.widgetutils.WidgetDBHelper;
 
 import java.util.ArrayList;
@@ -53,13 +55,14 @@ public class ModesFragment extends Fragment {
     NestedScrollView modesScrollView;
 
     AppWidgetManager mAppWidgetManager;
-    AppWidgetHost mAppWidgetHost;
+    LauncherAppWidgetHost mAppWidgetHost;
     private static final int REQUEST_CREATE_APPWIDGET = 5;
     private static final int REQUEST_PICK_APPWIDGET = 9;
     private WidgetDBHelper widgetDBHelper;
-    AppWidgetHostView hostView;
     Button addWidgetButton;
     int count=0;
+
+    public static int LONG_PRESS_TIME = 500; // Time in miliseconds
 
 
     public ModesFragment() {
@@ -84,7 +87,7 @@ public class ModesFragment extends Fragment {
 
 
         mAppWidgetManager = AppWidgetManager.getInstance(getActivity());
-        mAppWidgetHost = new AppWidgetHost(getActivity(), R.id.APPWIDGET_HOST_ID);
+        mAppWidgetHost = new LauncherAppWidgetHost(getActivity(), R.id.APPWIDGET_HOST_ID);
 
 
         widgetButton = (ImageView) rootView.findViewById(R.id.widget_drawer_button);
@@ -238,6 +241,14 @@ public class ModesFragment extends Fragment {
     }
 
     public void setupWidget(int widgetId) {
+        final LauncherAppWidgetHostView hostView;
+
+        final Handler _handler = new Handler();
+        final Runnable _longPressed = new Runnable() {
+            public void run() {
+                Log.i("info","LongPress");
+            }
+        };
 
         AppWidgetProviderInfo appWidgetInfo = mAppWidgetManager.getAppWidgetInfo(widgetId);
         String label=null;
@@ -253,7 +264,7 @@ public class ModesFragment extends Fragment {
         Log.i("WIDGET LABEL", label);
 
 
-        hostView = mAppWidgetHost.createView(getActivity(), widgetId, appWidgetInfo);
+        hostView = (LauncherAppWidgetHostView) mAppWidgetHost.createView(getActivity(), widgetId, appWidgetInfo);
         hostView.setAppWidget(widgetId, appWidgetInfo);
 //        hostView.setMinimumHeight(300);
         if (label.equals("Gmail")) {
@@ -269,11 +280,44 @@ public class ModesFragment extends Fragment {
         hostView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-
-                removeWidget(hostView);
+//
+//               hostView.requestDisallowInterceptTouchEvent(true);
+//                if (hostView.performLongClick())
+                    removeWidget(hostView);
                 return false;
             }
         });
+
+
+
+
+
+
+//        hostView.setOnTouchListener(new View.OnTouchListener() {
+//            @Override
+//            public boolean onTouch(View v, MotionEvent event) {
+//
+////                v.touc
+//
+//                switch(event.getAction()){
+//                    case MotionEvent.ACTION_DOWN:
+//                        _handler.postDelayed(_longPressed, LONG_PRESS_TIME);
+////                        Log.i(TAG,"LONG PRESS");
+//                        break;
+//                    case MotionEvent.ACTION_MOVE:
+//                        _handler.removeCallbacks(_longPressed);
+//                        break;
+//                    case MotionEvent.ACTION_UP:
+//                        _handler.removeCallbacks(_longPressed);
+//                        break;
+//                }
+//                return true;
+//
+////                return false;
+//            }
+//        });
+
+//        host
 
 //        hostView.setOnTouchListener(new View.OnTouchListener() {
 //

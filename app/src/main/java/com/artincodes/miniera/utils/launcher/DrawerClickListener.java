@@ -34,7 +34,7 @@ public class DrawerClickListener implements OnItemClickListener {
     @Override
     public void onItemClick(AdapterView<?> arg0, View arg1, int pos, long arg3) {
         // TODO Auto-generated method stub
-//        if (MainActivity.appLaunchable) {
+        if (LauncherFragment.appLaunchable) {
 
             Intent launchIntent = null;
 
@@ -51,7 +51,7 @@ public class DrawerClickListener implements OnItemClickListener {
         }
 
 
-//    }
+    }
 
 
 }
