@@ -32,6 +32,7 @@ dependencies {
     compile 'com.github.castorflex.smoothprogressbar:library-circular:1.0.1'
     compile 'com.pkmmte.view:circularimageview:1.1'
     compile 'com.loopj.android:android-async-http:1.4.7'
+    compile 'com.cocosw:bottomsheet:1.+@aar'
     compile files('libs/remote-metadata-provider.jar',
             'libs/remote-metadata-provider-v18.jar')
 

@@ -17,6 +17,7 @@ import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Build;
+import android.os.Handler;
 import android.os.Vibrator;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -73,10 +74,10 @@ public class MainActivity extends AppCompatActivity implements
     public static PackageManager packageManager;
 
     private ImageView wallpaperImageView;
-    Drawable wallpaperDrawable;
     private ImageView blurredImageView;
     FloatingActionButton minieraFAB;
 
+    String TAG = "MAIN ACTIVITY";
     public static MiniDrawerAppsDBHelper miniDrawerAppsDBHelper;
 
     ViewPager pager;
@@ -94,117 +95,35 @@ public class MainActivity extends AppCompatActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        boolean hasBackKey = KeyCharacterMap.deviceHasKey(KeyEvent.KEYCODE_BACK);
 
-
-        RelativeLayout mainActivityLayout = (RelativeLayout) findViewById(R.id.main_layout);
-        RelativeLayout.LayoutParams layoutParams =
-                new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT);
-
-
-        int marginTop = 0;
-        int marginBottom = 0;
-
-
-        if (Build.VERSION.SDK_INT >= 19) {
-            marginTop = getStatusBarHeight();
-//            layoutParams.setMargins(0,getStatusBarHeight(), 0, getNavigationBarHeight());
-        }
-        if (!hasBackKey) {
-            marginBottom = getNavigationBarHeight();
-        }
-
-        layoutParams.setMargins(0, marginTop, 0, marginBottom);
-
-        mainActivityLayout.setLayoutParams(layoutParams);
 
         wallpaperImageView = (ImageView) findViewById(R.id.wallpaper_image);
         blurredImageView = (ImageView) findViewById(R.id.blurrered_image);
 
-        new SetWallPaperTask().execute();
-        buildGoogleApiClient();
-        mGoogleApiClient.connect();
+//        new SetWallPaperTask().execute();
+        new Thread(new Runnable() {
+            public void run(){
+                Log.i(TAG,"GOOGLE API");
+                buildGoogleApiClient();
+                mGoogleApiClient.connect();
+            }
+        }).start();
+
 //        setActionBar();
 
-        blurredImageView.setAlpha(0f);
 
-        minieraFAB = (FloatingActionButton) findViewById(R.id.miniera_FAB);
-        miniDrawerAppsDBHelper = new MiniDrawerAppsDBHelper(getApplicationContext());
-        AppsDB = new AppsDBHelper(getApplication());
-
-        List<Fragment> fragments = getFragments();
-
-        pageAdapter = new HomeViewPagerAdapter(getSupportFragmentManager(), fragments);
-
-        pager = (ViewPager) findViewById(R.id.viewpager);
-        pager.setOffscreenPageLimit(2);
-
-
-        pager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-            @Override
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-
-                if (position == 1 && positionOffset > 0) {
-                    blurredImageView.setAlpha(positionOffset);
-
-                } else if (positionOffset > 0) {
-                    blurredImageView.setAlpha(1 - positionOffset);
-
-                }
+        new Thread(new Runnable() {
+            public void run(){
+                Log.i(TAG,"LAYOUT");
+                setUpMainLayout();
             }
-
-            @Override
-            public void onPageSelected(int position) {
-                if (position == 1) {
-                    minieraFAB.show();
-                    blurredImageView.setAlpha(0f);
-
-                } else {
-                    minieraFAB.hide();
-                    blurredImageView.setAlpha(1f);
-                }
-            }
-
-            @Override
-            public void onPageScrollStateChanged(int state) {
-                getSupportFragmentManager().popBackStack();
-            }
-        });
-
-        pager.setAdapter(pageAdapter);
-
-        pager.setCurrentItem(1);
+        }).start();
 
 
-        wallpaperImageView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                getSupportFragmentManager().popBackStack();
-                minieraFAB.show();
-            }
-        });
 
 
-        minieraFAB.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                getSupportFragmentManager().beginTransaction()
-                        .add(R.id.container_mini_appdrawer, new MiniAppdrawerFragment())
-                        .addToBackStack("MINI DRAWER")
-                        .commit();
-                minieraFAB.hide();
 
-            }
-        });
 
-        minieraFAB.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-
-                new BoostDevice().execute();
-                return false;
-            }
-        });
 
 
         IntentFilter intentFilter = new IntentFilter();
@@ -221,7 +140,7 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onResume() {
         super.onResume();
-        new SetWallPaperTask().execute();
+                new SetWallPaperTask().execute();
     }
 
     @Override
@@ -402,6 +321,8 @@ public class MainActivity extends AppCompatActivity implements
 
 
             packageManager = getPackageManager();
+
+            AppsDB = new AppsDBHelper(getApplication());
             AppsDB.refreshDB();
 
             return null;
@@ -411,7 +332,7 @@ public class MainActivity extends AppCompatActivity implements
         protected void onPostExecute(Void result) {
 
             Log.i("DB", AppsDB.getApps().getCount() + "");
-                HomeFragment.updateDock();
+            HomeFragment.updateDock();
 
             super.onPostExecute(result);
         }
@@ -461,19 +382,35 @@ public class MainActivity extends AppCompatActivity implements
 
     private class SetWallPaperTask extends AsyncTask<Void, Void, Void> {
 
+        boolean wallpaperChanged = true;
+        Drawable wallpaperDrawable;
+
+
         @Override
         protected Void doInBackground(Void... params) {
 
             WallpaperManager wallpaperManager = WallpaperManager.getInstance(getApplicationContext());
             wallpaperDrawable = wallpaperManager.getDrawable();
 
+            try {
+                if (wallpaperImageView.getDrawable().getConstantState().equals(wallpaperDrawable.getConstantState())) {
+                    wallpaperChanged=false;
+                }else
+                    wallpaperChanged=true;
+            }catch (NullPointerException e){
+
+            }
+
             return null;
         }
 
         @Override
         protected void onPostExecute(Void result) {
-            wallpaperImageView.setImageDrawable(wallpaperDrawable);
-            new BlurredImageTask().execute();
+            if (wallpaperChanged){
+                wallpaperImageView.setImageDrawable(wallpaperDrawable);
+                new BlurredImageTask().execute();
+            }
+
 
         }
     }
@@ -566,6 +503,113 @@ public class MainActivity extends AppCompatActivity implements
     }
 
 
+    public void setUpMainLayout(){
+
+        boolean hasBackKey = KeyCharacterMap.deviceHasKey(KeyEvent.KEYCODE_BACK);
+
+        RelativeLayout mainActivityLayout = (RelativeLayout) findViewById(R.id.main_layout);
+        RelativeLayout.LayoutParams layoutParams =
+                new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT);
+
+
+        int marginTop = 0;
+        int marginBottom = 0;
+
+
+        if (Build.VERSION.SDK_INT >= 19) {
+            marginTop = getStatusBarHeight();
+//            layoutParams.setMargins(0,getStatusBarHeight(), 0, getNavigationBarHeight());
+        }
+        if (!hasBackKey) {
+            marginBottom = getNavigationBarHeight();
+        }
+
+        layoutParams.setMargins(0, marginTop, 0, marginBottom);
+
+        mainActivityLayout.setLayoutParams(layoutParams);
+
+        blurredImageView.setAlpha(0f);
+
+        minieraFAB = (FloatingActionButton) findViewById(R.id.miniera_FAB);
+        miniDrawerAppsDBHelper = new MiniDrawerAppsDBHelper(getApplicationContext());
+
+        List<Fragment> fragments = getFragments();
+
+        pageAdapter = new HomeViewPagerAdapter(getSupportFragmentManager(), fragments);
+
+        pager = (ViewPager) findViewById(R.id.viewpager);
+        pager.setOffscreenPageLimit(2);
+
+
+        pager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+                if (position == 1 && positionOffset > 0) {
+                    blurredImageView.setAlpha(positionOffset);
+
+                } else if (positionOffset > 0) {
+                    blurredImageView.setAlpha(1 - positionOffset);
+
+                }
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                if (position == 1) {
+                    minieraFAB.show();
+                    blurredImageView.setAlpha(0f);
+
+                } else {
+                    minieraFAB.hide();
+                    blurredImageView.setAlpha(1f);
+                }
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+                getSupportFragmentManager().popBackStack();
+            }
+        });
+
+        pager.setAdapter(pageAdapter);
+
+        pager.setCurrentItem(1);
+
+
+        wallpaperImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getSupportFragmentManager().popBackStack();
+                minieraFAB.show();
+            }
+        });
+
+
+        minieraFAB.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getSupportFragmentManager().beginTransaction()
+                        .add(R.id.container_mini_appdrawer, new MiniAppdrawerFragment())
+                        .addToBackStack("MINI DRAWER")
+                        .commit();
+                minieraFAB.hide();
+
+            }
+        });
+
+        minieraFAB.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+
+                new BoostDevice().execute();
+                return false;
+            }
+        });
+
+    }
+
+
     public int getNavigationBarHeight() {
         Resources resources = getApplicationContext().getResources();
         int resourceId = resources.getIdentifier("navigation_bar_height", "dimen", "android");
@@ -584,8 +628,6 @@ public class MainActivity extends AppCompatActivity implements
         }
         return result;
     }
-
-
 
 
 }

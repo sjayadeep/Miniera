@@ -25,6 +25,7 @@
                 android:id="@+id/search_text_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginLeft="8dp"
                 android:text="Apps"
                 android:textColor="#fff"
                 android:textSize="@dimen/abc_text_size_medium_material" />

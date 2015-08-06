@@ -1,0 +1,25 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/uninstall"
+        android:icon="@mipmap/ic_delete"
+        android:title="Uninstall" />
+    <item
+        android:id="@+id/playstore"
+        android:icon="@mipmap/ic_play_store"
+        android:title="View in Playstore" />
+    <item
+        android:id="@+id/more_info"
+        android:icon="@mipmap/ic_info"
+        android:title="More Info" />
+    <item
+        android:id="@+id/add_to_home"
+        android:icon="@mipmap/ic_launcher"
+        android:title="Add to home" />
+    <item
+        android:id="@+id/add_to_floating_drawer"
+        android:icon="@mipmap/ic_launcher"
+        android:title="Add to Floating Drawer" />
+
+
+
+</menu>

@@ -7,6 +7,7 @@ import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProviderInfo;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Point;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -35,6 +36,8 @@ import com.artincodes.miniera.utils.widgetutils.WidgetDBHelper;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import me.drakeet.materialdialog.MaterialDialog;
 
@@ -53,6 +56,8 @@ public class ModesFragment extends Fragment {
     ViewGroup widgetContainer;
 
     NestedScrollView modesScrollView;
+    boolean moved = false;
+
 
     AppWidgetManager mAppWidgetManager;
     LauncherAppWidgetHost mAppWidgetHost;
@@ -61,6 +66,7 @@ public class ModesFragment extends Fragment {
     private WidgetDBHelper widgetDBHelper;
     Button addWidgetButton;
     int count=0;
+    int bug=0;
 
     public static int LONG_PRESS_TIME = 500; // Time in miliseconds
 
@@ -77,23 +83,103 @@ public class ModesFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View rootView = inflater.inflate(R.layout.fragment_modes, container, false);
-        widgetToolbar = (Toolbar) rootView.findViewById(R.id.widget_toolbar);
-        modesScrollView = (NestedScrollView)rootView.findViewById(R.id.modesScrollView);
+        final View rootView = inflater.inflate(R.layout.fragment_modes, container, false);
+
+        new Thread(new Runnable() {
+            public void run(){
+                Log.i(TAG,"MODES LAYOUT");
+//                setUpMainLayout();
+
+                widgetToolbar = (Toolbar) rootView.findViewById(R.id.widget_toolbar);
+
+                widgetButton = (ImageView) rootView.findViewById(R.id.widget_drawer_button);
+                widgetLayout = (LinearLayout) rootView.findViewById(R.id.widget_layout);
+                widgetContainer = (ViewGroup) rootView.findViewById(R.id.widget_container);
+                addWidgetButton = (Button)rootView.findViewById(R.id.add_widget_button);
+
+//        widgetToolbar.setDisplayShowTitleEnabled(false);
+                widgetToolbar.setContentInsetsAbsolute(0, 0);
+                modesScrollView = (NestedScrollView)rootView.findViewById(R.id.modesScrollView);
+
+            }
+        }).start();
+
+
+
+
+//        bug=0;
+
+
+        new Thread(new Runnable() {
+            public void run(){
+                Log.i(TAG,"LAYOUT");
+                setupWidgetLayout();
+            }
+        }).start();
+
+
+//        new Thread(new Runnable() {
+//            public void run(){
+//                Log.i(TAG,"LAYOUT");
+//                setUpMainLayout();
+//            }
+//        }).start();
+
+
+//        new Thread(new Runnable() {
+//            public void run(){
+//
+//                Log.i(TAG, "ADDING MODES FRAGMENTS");
+//                setUpMainLayout();
+                if (bug==0) {
+
+                    getActivity().getSupportFragmentManager().beginTransaction()
+                            .add(R.id.weather_container, new WeatherFragment())
+                            .commit();
+
+                    getActivity().getSupportFragmentManager().beginTransaction()
+                            .add(R.id.todo_container, new TodoFragment())
+                            .commit();
+
+                    if (Build.VERSION.SDK_INT < 18) {
+
+                        getActivity().getSupportFragmentManager().beginTransaction()
+                                .add(R.id.music_container, new MusicFragmentv14())
+                                .commit();
+                    } else if (Build.VERSION.SDK_INT < 19) {
+                        getActivity().getSupportFragmentManager().beginTransaction()
+                                .add(R.id.music_container, new MusicFragmentv18())
+                                .commit();
+                    } else {
+
+                        getActivity().getSupportFragmentManager().beginTransaction()
+                                .add(R.id.music_container, new MusicFragment())
+                                .commit();
+
+
+                    }
+                }
+                bug++;
+//            }
+//        }).start();
+
+
+        new LoadWidgets().execute();
+
+        return rootView;
+    }
+
+    public void setupWidgetLayout(){
 
         final RotateAnimation rotate = new RotateAnimation(0, 180, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
         rotate.setDuration(400);
         rotate.setInterpolator(new LinearInterpolator());
 
-
         mAppWidgetManager = AppWidgetManager.getInstance(getActivity());
         mAppWidgetHost = new LauncherAppWidgetHost(getActivity(), R.id.APPWIDGET_HOST_ID);
 
 
-        widgetButton = (ImageView) rootView.findViewById(R.id.widget_drawer_button);
-        widgetLayout = (LinearLayout) rootView.findViewById(R.id.widget_layout);
-        widgetContainer = (ViewGroup) rootView.findViewById(R.id.widget_container);
-        addWidgetButton = (Button)rootView.findViewById(R.id.add_widget_button);
+
         widgetDBHelper = new WidgetDBHelper(getActivity());
 
         widgetButton.setOnClickListener(new View.OnClickListener() {
@@ -121,44 +207,6 @@ public class ModesFragment extends Fragment {
                 selectWidget();
             }
         });
-
-        final Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                //Do something after 100ms
-                getActivity().getSupportFragmentManager().beginTransaction()
-                        .add(R.id.weather_container, new WeatherFragment())
-                        .commit();
-
-                getActivity().getSupportFragmentManager().beginTransaction()
-                        .add(R.id.todo_container, new TodoFragment())
-                        .commit();
-
-                if (Build.VERSION.SDK_INT < 18) {
-
-                    getActivity().getSupportFragmentManager().beginTransaction()
-                            .add(R.id.music_container, new MusicFragmentv14())
-                            .commit();
-                } else if (Build.VERSION.SDK_INT < 19) {
-                    getActivity().getSupportFragmentManager().beginTransaction()
-                            .add(R.id.music_container, new MusicFragmentv18())
-                            .commit();
-                } else {
-
-                    getActivity().getSupportFragmentManager().beginTransaction()
-                            .add(R.id.music_container, new MusicFragment())
-                            .commit();
-
-
-                }
-
-            }
-        }, 0);
-
-        new LoadWidgets().execute();
-
-        return rootView;
     }
 
     void selectWidget() {
@@ -280,13 +328,69 @@ public class ModesFragment extends Fragment {
         hostView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-//
-//               hostView.requestDisallowInterceptTouchEvent(true);
-//                if (hostView.performLongClick())
+//                if (!moved)
+//                if (this.performLongClick())
                     removeWidget(hostView);
                 return false;
             }
         });
+
+
+//
+//        final Handler handler = new Handler();
+//        final Runnable mLongPressed = new Runnable() {
+//            public void run() {
+////
+////                    Log.i("", "Long press!");
+////                removeWidget(hostView);
+//            }
+//        };
+//        hostView.setOnTouchListener(new View.OnTouchListener() {
+//            @Override
+//            public boolean onTouch(View v, MotionEvent event) {
+//
+//                Point previousPoint = new Point((int)event.getX(), (int)event.getY());
+//
+//
+//                switch (event.getAction()){
+//                    case MotionEvent.ACTION_DOWN:
+////                        Log.i(TAG,"MOUSE DOWN");
+////                        handler.postDelayed(mLongPressed, 500);
+//                        return true;
+//                    case MotionEvent.ACTION_MOVE:
+////                        Log.i(TAG,"MOUSE MOVE");
+//
+//                        Point currentPoint = new Point((int)event.getX(), (int)event.getY());
+//
+//
+//                        if(previousPoint == null){
+//                            previousPoint = currentPoint;
+//                        }
+//                        int dx = Math.abs(currentPoint.x - previousPoint.x);
+//                        int dy = Math.abs(currentPoint.y - previousPoint.y);
+//                        int s = (int) Math.sqrt(dx*dx + dy*dy);
+//                        Log.i(TAG,s+"");
+//                        boolean isActuallyMoving = (s >= 10); //we're moving
+//
+//                        if(isActuallyMoving){ //only restart timer over if we're actually moving (threshold needed because everyone's finger shakes a little)
+////                            longPressTimer.purge();
+////                            return false; //didn't trigger long press (will be treated as scroll)
+//                            moved=true;
+////                            handler.removeCallbacks(mLongPressed);
+//                        }
+//                        else{ //finger shaking a little, so continue to wait for possible long press
+////                            return true; //still waiting for potential long press
+//                        }
+//                        return true;
+//                    case MotionEvent.ACTION_UP:
+////                        Log.i(TAG,"MOUSE UP");
+//
+////                        handler.removeCallbacks(mLongPressed);
+//                        return true;
+//                }
+//                return false;
+//            }
+//        });
 
 
 
@@ -431,19 +535,24 @@ public class ModesFragment extends Fragment {
 
 //            loadWidgets();
 
-            Cursor cursor = widgetDBHelper.getWidgets();
-            cursor.moveToFirst();
-            int i = 0;
+            try {
+                Cursor cursor = widgetDBHelper.getWidgets();
+                cursor.moveToFirst();
+                int i = 0;
 
-            widgetId = new int[cursor.getCount()];
-            count = cursor.getCount();
-            while (!cursor.isAfterLast()) {
-                widgetId[i] = Integer.parseInt(cursor.getString(1));
-                cursor.moveToNext();
-                i++;
+                widgetId = new int[cursor.getCount()];
+                count = cursor.getCount();
+                while (!cursor.isAfterLast()) {
+                    widgetId[i] = Integer.parseInt(cursor.getString(1));
+                    cursor.moveToNext();
+                    i++;
+                }
+
+                cursor.close();
             }
+            catch (NullPointerException e){
 
-            cursor.close();
+            }
 
             return null;
         }

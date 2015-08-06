@@ -35,9 +35,11 @@
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:layout_margin="16dp"
-        fab:fab_colorNormal="#fff"
-        fab:fab_colorPressed="#ffbebebe"
-        fab:fab_colorRipple="#ffaeaeae" />
+        fab:fab_colorNormal="#607D8B"
+        fab:fab_type="mini"
+        android:src="@android:drawable/ic_popup_sync"
+        fab:fab_colorPressed="#455A64"
+        fab:fab_colorRipple="#455A64" />
 
     <FrameLayout
         android:layout_width="match_parent"

@@ -1,7 +1,10 @@
 package com.artincodes.miniera.fragments;
 
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Color;
@@ -93,6 +96,7 @@ public class LauncherFragment extends Fragment {
 
         Toolbar toolbar = (Toolbar) rootView.findViewById(R.id.apps_toolbar);
 //        toolbar.inflateMenu(R.menu.menu_main);
+        toolbar.setContentInsetsAbsolute(0, 0);
         searchGridView = (GridView) rootView.findViewById(R.id.search_grid);
         searchGridView.setVisibility(View.GONE);
         appsSearchView = (SearchView) rootView.findViewById(R.id.app_search_view);
@@ -215,6 +219,14 @@ public class LauncherFragment extends Fragment {
             }
         });
 
+
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(Intent.ACTION_PACKAGE_ADDED);
+        intentFilter.addAction(Intent.ACTION_PACKAGE_REMOVED);
+        intentFilter.addAction(Intent.ACTION_PACKAGE_CHANGED);
+        intentFilter.addDataScheme("package");
+        getActivity().registerReceiver(new LauncherPacReceiver(), intentFilter);
+
         return rootView;
     }
 
@@ -222,6 +234,7 @@ public class LauncherFragment extends Fragment {
     private void displayIndex() {
 
         indexLayout = (LinearLayout) rootView.findViewById(R.id.side_index);
+        indexLayout.removeAllViews();
 
         TextView textView;
         List<String> indexList = new ArrayList<String>(mapIndex.keySet());
@@ -255,6 +268,12 @@ public class LauncherFragment extends Fragment {
         protected Void doInBackground(Void... params) {
 
             Log.i("DRAWER", "DO IN BG IS CALLED");
+            try {
+                mapIndex.clear();
+
+            }catch (NullPointerException e){
+                //TODO
+            }
 
             if (true) {
                 adapterSet = false;
@@ -377,6 +396,16 @@ public class LauncherFragment extends Fragment {
 
 
 
+    public class LauncherPacReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context arg0, Intent arg1) {
+            Log.i("PAC RECIEVER", "PACKAGE CHANGED");
+
+            new SetDrawer().execute();
+        }
+
+    }
 
 }
 

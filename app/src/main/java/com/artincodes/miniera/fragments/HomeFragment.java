@@ -134,68 +134,75 @@ public class HomeFragment extends Fragment {
     public static void updateDock() {
 
         final DockAppsDBHelper dockAppsDBHelper = new DockAppsDBHelper(c);
-        Cursor cursor = dockAppsDBHelper.getDockApps();
-        String TAG = "UPDATE DOCK";
-        final String[] packageNames = new String[5];
-        final String[] labels = new String[5];
-        Drawable[] icons = new Drawable[5];
-        cursor.moveToFirst();
-        while (!cursor.isAfterLast()) {
-            int index = cursor.getInt(0);
-            labels[index] = cursor.getString(2);
-            if (labels[index].equals("Phone")) {
-                packageNames[index] = "com.android.phone";
-            } else {
-                packageNames[index] = cursor.getString(1);
+        try {
+
+            Cursor cursor = dockAppsDBHelper.getDockApps();
+            String TAG = "UPDATE DOCK";
+            final String[] packageNames = new String[5];
+            final String[] labels = new String[5];
+            Drawable[] icons = new Drawable[5];
+            cursor.moveToFirst();
+            while (!cursor.isAfterLast()) {
+                int index = cursor.getInt(0);
+                labels[index] = cursor.getString(2);
+                if (labels[index].equals("Phone")) {
+                    packageNames[index] = "com.android.phone";
+                } else {
+                    packageNames[index] = cursor.getString(1);
+                }
+
+                try {
+                    icons[index] = MainActivity.packageManager.getApplicationIcon(packageNames[index]);
+                } catch (PackageManager.NameNotFoundException NNFE) {
+
+                } catch (NullPointerException NPE) {
+
+                }
+
+                Log.i(TAG, packageNames[index]);
+                cursor.moveToNext();
+
             }
 
-            try {
-                icons[index] = MainActivity.packageManager.getApplicationIcon(packageNames[index]);
-            } catch (PackageManager.NameNotFoundException NNFE) {
+            dockGrid.setAdapter(new ImageAdapter(c, packageNames, icons));
+            dockGrid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    openApp(packageNames[position]);
+                }
+            });
+            dockGrid.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+                @Override
+                public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
 
-            } catch (NullPointerException NPE) {
+                    final MaterialDialog DeleteAppDialog = new MaterialDialog(c);
+                    DeleteAppDialog.setTitle(labels[position])
+                            .setMessage("Do you want to remove "+labels[position]+"from dock?")
+                            .setPositiveButton("DELETE", new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    dockAppsDBHelper.deleteApp(position);
+                                    DeleteAppDialog.dismiss();
+                                    updateDock();
 
-            }
+                                }
+                            })
+                            .setNegativeButton("CANCEL", new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    DeleteAppDialog.dismiss();
+                                }
+                            })
+                            .show();
 
-            Log.i(TAG, packageNames[index]);
-            cursor.moveToNext();
+                    return false;
+                }
+            });
+
+        }catch (NullPointerException e){
 
         }
 
-        dockGrid.setAdapter(new ImageAdapter(c, packageNames, icons));
-        dockGrid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                openApp(packageNames[position]);
-            }
-        });
-        dockGrid.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-            @Override
-            public boolean onItemLongClick(AdapterView<?> parent, View view, final int position, long id) {
-
-                final MaterialDialog DeleteAppDialog = new MaterialDialog(c);
-                DeleteAppDialog.setTitle("Remove")
-                        .setMessage("Do you want to remove "+labels[position]+"?")
-                        .setPositiveButton("DELETE", new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                dockAppsDBHelper.deleteApp(position);
-                                DeleteAppDialog.dismiss();
-                                updateDock();
-
-                            }
-                        })
-                        .setNegativeButton("CANCEL", new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                DeleteAppDialog.dismiss();
-                            }
-                        })
-                        .show();
-
-                return false;
-            }
-        });
     }
 
 
