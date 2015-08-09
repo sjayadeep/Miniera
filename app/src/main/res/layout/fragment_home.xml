@@ -33,10 +33,11 @@
         android:layout_height="?attr/actionBarSize"
         android:columnWidth="90dp"
         android:numColumns="5"
-        android:verticalSpacing="25dp"
+        android:verticalSpacing="20dp"
         android:stretchMode="spacingWidthUniform"
         android:gravity="center"
-        android:layout_marginBottom="8dp"
+        android:padding="5dp"
+        android:layout_marginBottom="5dp"
         android:layout_alignParentBottom="true"/>
 
 </RelativeLayout>

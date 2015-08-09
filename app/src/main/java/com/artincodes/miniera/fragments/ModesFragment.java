@@ -112,8 +112,13 @@ public class ModesFragment extends Fragment {
 
         new Thread(new Runnable() {
             public void run(){
-                Log.i(TAG,"LAYOUT");
-                setupWidgetLayout();
+                Log.i(TAG, "LAYOUT");
+                try {
+                    setupWidgetLayout();
+
+                }catch (NullPointerException npe){
+
+                }
             }
         }).start();
 
@@ -562,7 +567,11 @@ public class ModesFragment extends Fragment {
 
             for (int i = 0; i < widgetId.length; i++)
 
-                setupWidget(widgetId[i]);
+                try {
+                    setupWidget(widgetId[i]);
+                }catch (NullPointerException npe){
+
+                }
 
         }
 

@@ -37,7 +37,6 @@
         android:layout_margin="16dp"
         fab:fab_colorNormal="#607D8B"
         fab:fab_type="mini"
-        android:src="@android:drawable/ic_popup_sync"
         fab:fab_colorPressed="#455A64"
         fab:fab_colorRipple="#455A64" />
 

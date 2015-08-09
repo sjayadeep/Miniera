@@ -40,6 +40,7 @@ import com.artincodes.miniera.utils.launcher.DrawerAdapter;
 import com.artincodes.miniera.utils.launcher.DrawerClickListener;
 import com.artincodes.miniera.utils.launcher.DrawerLongClickListener;
 import com.artincodes.miniera.utils.launcher.StaticGridView;
+import com.artincodes.miniera.utils.widgetutils.LauncherAppWidgetHostView;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -82,6 +83,8 @@ public class LauncherFragment extends Fragment {
     int count = 0;
     boolean adapterSet = false;
 
+    LauncherPacReceiver launcherPacReceiver;
+
 
     public LauncherFragment() {
         // Required empty public constructor
@@ -94,6 +97,7 @@ public class LauncherFragment extends Fragment {
         // Inflate the layout for this fragment
         rootView = inflater.inflate(R.layout.fragment_launcher, container, false);
 
+        launcherPacReceiver = new LauncherPacReceiver();
         Toolbar toolbar = (Toolbar) rootView.findViewById(R.id.apps_toolbar);
 //        toolbar.inflateMenu(R.menu.menu_main);
         toolbar.setContentInsetsAbsolute(0, 0);
@@ -225,12 +229,18 @@ public class LauncherFragment extends Fragment {
         intentFilter.addAction(Intent.ACTION_PACKAGE_REMOVED);
         intentFilter.addAction(Intent.ACTION_PACKAGE_CHANGED);
         intentFilter.addDataScheme("package");
-        getActivity().registerReceiver(new LauncherPacReceiver(), intentFilter);
+        getActivity().registerReceiver(launcherPacReceiver, intentFilter);
 
         return rootView;
     }
 
 
+    @Override
+    public void onStop(){
+
+        getActivity().unregisterReceiver(launcherPacReceiver);
+        super.onStop();
+    }
     private void displayIndex() {
 
         indexLayout = (LinearLayout) rootView.findViewById(R.id.side_index);
@@ -348,7 +358,12 @@ public class LauncherFragment extends Fragment {
         @Override
         protected void onPostExecute(Void result) {
 
-            displayIndex();
+            try {
+                displayIndex();
+
+            }catch (NullPointerException npe){
+
+            }
             Log.i(TAG, "Calling Adapter");
             appsRecyclerViewAdapter = null;
 //            if (adapterSet == false) {

@@ -39,6 +39,7 @@ import com.artincodes.miniera.fragments.MiniAppdrawerFragment;
 import com.artincodes.miniera.fragments.ModesFragment;
 import com.artincodes.miniera.fragments.WidgetFragment;
 import com.artincodes.miniera.utils.BlurBuilder.BlurBuilder;
+import com.artincodes.miniera.utils.FloatingDrawerService;
 import com.artincodes.miniera.utils.HomeViewPagerAdapter;
 import com.artincodes.miniera.utils.MiniDrawerDB.MiniDrawerAppsDBHelper;
 import com.artincodes.miniera.utils.launcher.AppsDBHelper;
@@ -76,6 +77,7 @@ public class MainActivity extends AppCompatActivity implements
     private ImageView wallpaperImageView;
     private ImageView blurredImageView;
     FloatingActionButton minieraFAB;
+    IntentFilter intentFilter;
 
     String TAG = "MAIN ACTIVITY";
     public static MiniDrawerAppsDBHelper miniDrawerAppsDBHelper;
@@ -88,6 +90,7 @@ public class MainActivity extends AppCompatActivity implements
     Location mLastLocation;
     LocationRequest mLocationRequest;
 
+    PacReceiver pacReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -95,6 +98,9 @@ public class MainActivity extends AppCompatActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+
+//        Intent intent = new Intent(MainActivity.this, FloatingDrawerService.class);
+//        startService(intent);
 
 
         wallpaperImageView = (ImageView) findViewById(R.id.wallpaper_image);
@@ -120,18 +126,16 @@ public class MainActivity extends AppCompatActivity implements
         }).start();
 
 
+        pacReceiver = new PacReceiver();
 
 
 
-
-
-
-        IntentFilter intentFilter = new IntentFilter();
+        intentFilter = new IntentFilter();
         intentFilter.addAction(Intent.ACTION_PACKAGE_ADDED);
         intentFilter.addAction(Intent.ACTION_PACKAGE_REMOVED);
         intentFilter.addAction(Intent.ACTION_PACKAGE_CHANGED);
         intentFilter.addDataScheme("package");
-        registerReceiver(new PacReceiver(), intentFilter);
+        registerReceiver(pacReceiver, intentFilter);
 
         new LoadApplicationTask().execute();
 
@@ -141,6 +145,17 @@ public class MainActivity extends AppCompatActivity implements
     public void onResume() {
         super.onResume();
                 new SetWallPaperTask().execute();
+    }
+
+    @Override
+    public void onStop(){
+
+        try {
+            unregisterReceiver(pacReceiver);
+        }catch (IllegalArgumentException E){
+            registerReceiver(pacReceiver,intentFilter);
+        }
+        super.onStop();
     }
 
     @Override
